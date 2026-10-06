@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Leia o gráfico em um dia: guia rápido de mercado e cripto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#eef2f7;--surface:#fff;--text:#0f1b2d;--muted:#56657b;--line:#d9e0ea;--soft:#f3f6fa;
+  --accent:#1f4fd8;--up:#0c9f6f;--down:#dc3d52;--c1:#d18a00;--c2:#2f6fdb;--c3:#7c4ddb;--c4:#0a8f86;
+  --warn-bg:#fff5dc;--warn-line:#ecc977;--ok-bg:#e5f6ee;--ok-line:#95d3b5;
+  --display:'Bricolage Grotesque',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --sans:'Instrument Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0a111c;--surface:#121b29;--text:#e8edf5;--muted:#93a1b7;--line:#233046;--soft:#182234;
+    --accent:#6c9cff;--up:#2fd394;--down:#ff6f84;--c1:#f2b33a;--c2:#6ea2ff;--c3:#b592ff;--c4:#40d2c6;
+    --warn-bg:#2b2312;--warn-line:#6b5522;--ok-bg:#112a20;--ok-line:#25664a;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0a111c;--surface:#121b29;--text:#e8edf5;--muted:#93a1b7;--line:#233046;--soft:#182234;
+  --accent:#6c9cff;--up:#2fd394;--down:#ff6f84;--c1:#f2b33a;--c2:#6ea2ff;--c3:#b592ff;--c4:#40d2c6;
+  --warn-bg:#2b2312;--warn-line:#6b5522;--ok-bg:#112a20;--ok-line:#25664a;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 58px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 var(--sans)}
+main{max-width:760px;margin:0 auto;padding:0 14px 40px}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;letter-spacing:-.01em}
+h3{font-size:19px;font-weight:700}
+p{margin:0 0 .7em}
+ul,ol{margin:0 0 .7em;padding-left:1.2em}
+li{margin-bottom:.3em}
+a{color:var(--accent)}
+b{font-weight:600}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* navegação */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line);display:flex;gap:6px;align-items:center;padding:8px 14px;overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav a{flex:none;text-decoration:none;color:var(--text);font-size:13.5px;font-weight:500;padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:var(--surface)}
+.nav a i{font:500 11px var(--mono);font-style:normal;color:var(--accent);margin-right:5px}
+.nav .sp{flex:1}
+
+/* hero */
+.hero{position:relative;isolation:isolate;padding:30px 0 6px}
+.hero::before{content:"";position:absolute;inset:0 -14px 0;z-index:-1;opacity:.75;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:26px 26px;
+  -webkit-mask-image:linear-gradient(#000 30%,transparent);mask-image:linear-gradient(#000 30%,transparent)}
+.hero h1{font-size:clamp(34px,9vw,56px);font-weight:700;letter-spacing:-.03em;max-width:12ch}
+.hero .sub{font-size:17px;color:var(--muted);max-width:50ch;margin:12px 0 18px}
+.path{list-style:none;margin:0 -14px 14px;padding:2px 14px 6px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.path::-webkit-scrollbar{display:none}
+
+/* abertura: fita de candles + entrada escalonada */
+.tape{margin:0 -14px 16px;padding:0 14px}
+.tape svg{display:block;width:100%;height:auto;overflow:visible}
+.tape .k{transform-box:fill-box;transform-origin:center bottom}
+.tape .pul{transform-box:fill-box;transform-origin:center;opacity:0}
+.hero .sub b.tk{font:500 15px var(--mono);color:var(--up);white-space:nowrap}
+.intro-on .tape .k{transform:scaleY(.02);opacity:0;animation:kgrow .5s cubic-bezier(.2,.9,.3,1) var(--d) forwards}
+.intro-on .tape .ln{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1.5s .25s cubic-bezier(.4,0,.2,1) forwards}
+.intro-on .tape .tag{opacity:0;animation:fade .45s 1.65s forwards}
+.intro-on .tape .pul{opacity:0;animation:pulse 1.6s 1.7s 2 forwards}
+.intro-on .hero h1 span{display:inline-block;opacity:0;transform:translateY(.5em);animation:rise .7s cubic-bezier(.2,.9,.3,1) var(--d) forwards}
+.intro-on .hero .sub{opacity:0;animation:rise .7s .5s cubic-bezier(.2,.9,.3,1) forwards}
+.intro-on .hero .path li{opacity:0;transform:translateY(8px);animation:rise .5s cubic-bezier(.2,.9,.3,1) var(--d) forwards}
+.intro-on .hero .note{opacity:0;animation:fade .6s 1.5s forwards}
+.intro-on .hero::before{animation:gridin 1.2s cubic-bezier(.3,.9,.2,1) forwards}
+.intro-on .nav{opacity:0;animation:fade .6s 1.2s forwards}
+@keyframes kgrow{from{transform:scaleY(.02);opacity:0}60%{opacity:1}to{transform:scaleY(1);opacity:1}}
+@keyframes rise{to{opacity:1;transform:none}}
+@keyframes pulse{0%,100%{opacity:0;transform:scale(.5)}45%{opacity:.5;transform:scale(2.6)}}
+@keyframes gridin{from{opacity:0;transform:scale(1.06)}to{opacity:.75;transform:none}}
+.path a{display:block;min-width:104px;text-decoration:none;color:var(--text);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:9px 11px;line-height:1.25}
+.path b{display:block;font:500 12px var(--mono);color:var(--accent);margin-bottom:2px}
+.path span{font-weight:600;font-size:14px}
+.path small{display:block;color:var(--muted);font-size:12px}
+.note{background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:10px;padding:9px 12px;font-size:13.5px;margin:0 0 10px}
+
+/* seções */
+section{padding-top:38px}
+.sh{display:flex;align-items:center;gap:11px;margin-bottom:6px}
+.sh .n{flex:none;width:34px;height:34px;border-radius:50%;background:var(--text);color:var(--bg);display:grid;place-items:center;font:500 15px var(--mono)}
+.sh h2{font-size:27px;font-weight:700}
+.sh .tm{margin-left:auto;font:400 12.5px var(--mono);color:var(--muted);white-space:nowrap}
+.intro{color:var(--muted);margin-bottom:14px}
+
+/* painéis */
+.pn{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 15px;margin:0 0 14px}
+.pn>h3{margin-bottom:6px}
+.pn .lead{color:var(--muted);margin-bottom:10px}
+.def{font:500 19px/1.4 var(--display);margin:2px 0 12px}
+.def b{color:var(--accent);font-weight:700}
+.ind{border-left:4px solid var(--c2)}
+.grp{display:flex;align-items:center;gap:8px;font:600 15px var(--display);margin:22px 0 10px}
+.grp i{width:22px;height:4px;border-radius:2px}
+.grp small{font:400 13px var(--sans);color:var(--muted)}
+.pit{font-size:14px;background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:8px;padding:8px 11px;margin:10px 0 0}
+.par,.cap{font-size:13px;color:var(--muted);margin:8px 0 0}
+.kv{display:grid;grid-template-columns:64px 1fr;gap:6px 12px;font-size:14.5px;margin:10px 0 0}
+.kv b{color:var(--accent)}
+.formula{font:13.5px/1.7 var(--mono);white-space:pre;overflow-x:auto;background:var(--soft);border-left:3px solid var(--accent);border-radius:6px;padding:9px 12px}
+.ex{font-size:14.5px;margin:8px 0 0}
+details{border:1px solid var(--line);border-radius:10px;background:var(--soft);margin:10px 0 0}
+summary{cursor:pointer;list-style:none;padding:9px 12px;font-weight:600;font-size:14px;display:flex;justify-content:space-between}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-family:var(--mono);color:var(--accent)}
+details[open] summary::after{content:"−"}
+details>div{padding:0 12px 12px}
+
+/* gráficos */
+.chart{margin:8px -4px 4px}
+.chart svg{display:block;width:100%;height:auto;background:var(--surface);border-radius:8px}
+.chart .ax{font:9px var(--mono);fill:var(--muted)}
+.chart .ttl{font:9.5px var(--sans);fill:var(--muted)}
+.chart .grid{stroke:var(--line);stroke-width:.6}
+.chart .dash{stroke-dasharray:3 3}
+.chart .u{stroke:var(--up);fill:var(--up)}
+.chart .d{stroke:var(--down);fill:var(--down)}
+.legend{display:flex;flex-wrap:wrap;gap:3px 14px;font-size:12.5px;color:var(--muted);padding:2px 4px 0}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.pgrid{display:grid;grid-template-columns:1fr;gap:10px;margin:8px 0}
+@media (min-width:640px){.pgrid.two{grid-template-columns:1fr 1fr}}
+.pfig{margin:0}
+.pfig svg,.cbox svg{display:block;width:100%;height:auto;background:var(--soft);border:1px solid var(--line);border-radius:10px}
+.pfig figcaption{font-size:13px;font-weight:600;padding:4px 2px 0}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 8px}
+.cbox{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:9px 10px}
+.cbox b{font-size:13.5px;line-height:1.3;display:block}
+.cbox svg{margin:4px 0 6px;border:0}
+.cbox p{font-size:12.5px;color:var(--muted);margin:0;line-height:1.5}
+
+/* animação de desenho */
+.anim .pr{stroke-dasharray:1;stroke-dashoffset:1}
+.anim.go .pr{animation:draw 2.6s cubic-bezier(.45,0,.25,1) forwards}
+.anim .late{opacity:0}
+.anim.go .late{animation:fade .6s 2.3s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes fade{to{opacity:1}}
+@media (prefers-reduced-motion:reduce){
+  .anim .pr{stroke-dasharray:none;stroke-dashoffset:0}.anim .late{opacity:1}
+  .anim.go .pr,.anim.go .late{animation:none}html{scroll-behavior:auto}
+}
+
+/* controles */
+button{font:500 14px var(--sans);color:var(--text);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer}
+button:hover{background:var(--soft)}
+button.pri{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;margin:0 0 8px;background:var(--surface)}
+.seg button{border:0;border-radius:0}
+.seg{max-width:100%;overflow-x:auto;scrollbar-width:none}
+.seg::-webkit-scrollbar{display:none}
+.seg.sm button{padding:6px 10px;font-size:13px;white-space:nowrap}
+.seg button.on{background:var(--accent);color:var(--bg)}
+.ctl{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;margin:4px 0 8px}
+.ctl .seg{margin:0}
+.ctl output{font:400 12.5px var(--mono);color:var(--muted);margin-left:auto}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fields label{font-size:13px;color:var(--muted)}
+.fields input{display:block;width:100%;font:14px var(--mono);color:var(--text);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-top:3px}
+.out{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.out div{background:var(--soft);border-radius:10px;padding:8px 10px}
+.out small{display:block;color:var(--muted);font-size:12px}
+.out b{font:500 15.5px var(--mono)}
+
+/* tabelas */
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface);margin:8px 0}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:520px}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--soft);font-size:12.5px}
+tr:last-child td{border:0}
+td:first-child{font-weight:600;white-space:nowrap}
+.good{color:var(--up);font-weight:600}.bad{color:var(--down);font-weight:600}
+
+/* DOM, ordens */
+.dom{font:13px var(--mono);border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.dom .row{position:relative;display:flex;justify-content:space-between;padding:4px 10px;border-bottom:1px solid var(--line)}
+.dom .row i{position:absolute;top:0;bottom:0;right:0;opacity:.18}
+.dom .row span{position:relative}
+.dom .ask .p{color:var(--down)}.dom .bid .p{color:var(--up)}
+.dom .ask i{background:var(--down)}.dom .bid i{background:var(--up)}
+.dom .row.hit{background:var(--warn-bg)}
+.dom .spread{text-align:center;padding:5px;background:var(--soft);color:var(--muted);font-size:12px}
+.tip{background:var(--ok-bg);border:1px solid var(--ok-line);border-radius:10px;padding:9px 12px;font-size:14px;margin:10px 0 0}
+.ladder{display:grid;gap:5px;margin:8px 0}
+.ladder div{display:flex;justify-content:space-between;gap:8px;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:14px}
+.ladder .now{justify-content:center;background:var(--soft);border-style:dashed;font-family:var(--mono);color:var(--muted)}
+.ladder .mono{font:12.5px var(--mono);color:var(--muted)}
+.steps{counter-reset:s;list-style:none;padding:0;margin:0}
+.steps li{counter-increment:s;position:relative;padding:8px 0 8px 38px;border-bottom:1px solid var(--line);margin:0}
+.steps li:last-child{border:0}
+.steps li::before{content:counter(s);position:absolute;left:0;top:8px;width:25px;height:25px;border-radius:50%;background:var(--accent);color:var(--bg);font:500 12.5px var(--mono);display:grid;place-items:center}
+.mono{font-family:var(--mono);font-size:.92em}
+footer{margin-top:30px;font-size:13px;color:var(--muted)}
+#frCharts svg{display:block;width:100%;height:auto;margin:0 0 6px;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.kh{font:600 13.5px var(--sans);color:var(--accent);margin:12px 0 4px}
+.tfbar{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 2px}
+.tfbar span{font:500 13px var(--mono);padding:4px 12px;border-radius:8px;border:1px solid var(--line);background:var(--soft);color:var(--text)}
+.tfbar span.dt{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.kdt{color:var(--accent);font-weight:600}
+.frs{position:relative;margin-bottom:6px}
+#frCharts .frs svg{margin:0}
+#fractal[data-v="all"] #frTabs,#fractal[data-v="all"] #frTour{display:none}
+</style>
+</head>
+<body>
+<nav class="nav" aria-label="Seções">
+  <a href="#s1"><i>1</i>Base</a><a href="#s2"><i>2</i>Candles</a><a href="#s3"><i>3</i>Indicadores</a>
+  <a href="#s4"><i>4</i>Padrões</a><a href="#s5"><i>5</i>Setups</a><a href="#s6"><i>6</i>Execução</a><a href="#s7"><i>7</i>Risco</a>
+  <span class="sp"></span><button id="themeBtn" aria-label="Alternar tema claro e escuro">Tema</button>
+</nav>
+
+<main>
+<header class="hero">
+  <h1><span>Leia</span> <span>o</span> <span>gráfico</span> <span>em</span> <span>um</span> <span>dia.</span></h1>
+  <div class="tape" id="tape" aria-hidden="true"></div>
+  <p class="sub">O essencial para sair testando: o que olhar, como calcular, como interpretar e o que fazer primeiro. Feito para a demonstração no Tron (gráficos TradingView), operando cripto.</p>
+  <ol class="path">
+    <li><a href="#s1"><b>1</b><span>Base</span><small>20 min</small></a></li>
+    <li><a href="#s2"><b>2</b><span>Candles</span><small>15 min</small></a></li>
+    <li><a href="#s3"><b>3</b><span>Indicadores</span><small>45 min</small></a></li>
+    <li><a href="#s4"><b>4</b><span>Padrões</span><small>30 min</small></a></li>
+    <li><a href="#s5"><b>5</b><span>Setups</span><small>20 min</small></a></li>
+    <li><a href="#s6"><b>6</b><span>Execução</span><small>30 min</small></a></li>
+    <li><a href="#s7"><b>7</b><span>Risco</span><small>20 min</small></a></li>
+  </ol>
+  <div class="note">Conteúdo educacional, sem recomendação de investimento. Cripto é volátil e alavancagem amplifica perdas. Os gráficos usam dados simulados. Nomes de menus podem variar no Tron; os conceitos são os do TradingView.</div>
+</header>
+
+<!-- 1 BASE -->
+<section id="s1">
+  <div class="sh"><span class="n">1</span><h2>Base</h2><span class="tm">20 min</span></div>
+  <p class="intro">Quatro ideias que sustentam todo o resto: candle, tendência, suporte/resistência e fractalidade.</p>
+
+  <div class="pn">
+    <h3>O candle</h3>
+    <p class="lead">Cada candle resume um período em quatro preços: abertura, máxima, mínima e fechamento (OHLC).</p>
+    <svg style="width:100%;height:auto;display:block" viewBox="0 0 400 190" role="img" aria-label="Candle de alta e candle de baixa com legendas" style="width:100%;height:auto;display:block">
+      <g style="font:10px var(--sans);fill:var(--muted)">
+        <line x1="110" y1="20" x2="110" y2="150" style="stroke:var(--up);stroke-width:2"/>
+        <rect x="98" y="50" width="24" height="70" style="fill:var(--up)"/>
+        <line x1="90" y1="20" x2="108" y2="20" class="grid" style="stroke:var(--muted)"/>
+        <line x1="90" y1="50" x2="98" y2="50" style="stroke:var(--muted)"/>
+        <line x1="90" y1="120" x2="98" y2="120" style="stroke:var(--muted)"/>
+        <line x1="90" y1="150" x2="108" y2="150" style="stroke:var(--muted)"/>
+        <text x="86" y="23" text-anchor="end">Máxima (High)</text>
+        <text x="86" y="53" text-anchor="end">Fechamento (Close)</text>
+        <text x="86" y="123" text-anchor="end">Abertura (Open)</text>
+        <text x="86" y="153" text-anchor="end">Mínima (Low)</text>
+        <text x="110" y="176" text-anchor="middle" style="fill:var(--up);font-weight:600">Candle de alta: fecha acima da abertura</text>
+
+        <line x1="290" y1="20" x2="290" y2="150" style="stroke:var(--down);stroke-width:2"/>
+        <rect x="278" y="50" width="24" height="70" style="fill:var(--down)"/>
+        <line x1="292" y1="20" x2="310" y2="20" style="stroke:var(--muted)"/>
+        <line x1="302" y1="50" x2="310" y2="50" style="stroke:var(--muted)"/>
+        <line x1="302" y1="120" x2="310" y2="120" style="stroke:var(--muted)"/>
+        <line x1="292" y1="150" x2="310" y2="150" style="stroke:var(--muted)"/>
+        <text x="316" y="23">Máxima</text>
+        <text x="316" y="53">Abertura</text>
+        <text x="316" y="123">Fechamento</text>
+        <text x="316" y="153">Mínima</text>
+        <text x="290" y="176" text-anchor="middle" style="fill:var(--down);font-weight:600">Candle de baixa: fecha abaixo</text>
+      </g>
+    </svg>
+    <ul>
+      <li>O <b>corpo</b> vai da abertura ao fechamento. Os <b>pavios</b> mostram até onde o preço foi e voltou.</li>
+      <li><b>Long (comprado)</b> ganha se o preço sobe. <b>Short (vendido)</b> ganha se cai. Nos perpétuos de cripto dá para fazer os dois.</li>
+    </ul>
+  </div>
+
+  <div class="pn" id="tendencia">
+    <h3>Tendência</h3>
+    <p class="def">Tendência é a <b>direção predominante</b> do preço. Topos e fundos subindo: alta. Topos e fundos descendo: baixa. Sem sequência: lateral.</p>
+    <div class="seg" id="trendTabs"><button class="on" data-k="up">Alta</button><button data-k="down">Baixa</button><button data-k="side">Lateral</button></div>
+    <div class="pfig" id="trendFig"></div>
+    <ul>
+      <li><b>Teste rápido:</b> preço acima da EMA 50 e ela subindo é alta. Abaixo e caindo é baixa. Cruzando toda hora é lateral.</li>
+      <li><b>Regra de ouro:</b> opere a favor da tendência do timeframe maior. Contra ela, o risco sobe e o alvo diminui.</li>
+      <li>O primeiro alerta de fim de tendência é perder o último fundo (alta) ou o último topo (baixa).</li>
+    </ul>
+
+    <p class="kh">Linha de tendência</p>
+    <p>Linha de tendência é uma reta que liga os <b>fundos</b> (tendência de alta) ou os <b>topos</b> (tendência de baixa). Ela mostra a inclinação do movimento e funciona como suporte ou resistência que se move com o tempo. Troque o exemplo e veja os toques marcados no gráfico.</p>
+    <div class="seg sm" id="ltTabs" role="group" aria-label="Exemplo de linha de tendência"><button class="on" data-k="up">Alta</button><button data-k="down">Baixa</button><button data-k="strong">Forte</button><button data-k="weak">Fraca</button><button data-k="brk">Rompida</button></div>
+    <div class="pfig" id="ltFig"></div>
+    <p class="cap"><span class="kdt">Números</span> = toques na linha. <button id="ltReplay">Repetir animação</button></p>
+    <ul>
+      <li><b>Como traçar:</b> 2 pontos definem a linha, o 3º toque confirma. Ligue extremos de <b>corpo ou pavio</b>, mas não misture os dois na mesma linha.</li>
+      <li><b>Forte:</b> 3 toques ou mais, inclinação entre 30° e 45°, timeframe maior. Cada toque é um ponto onde dá para comprar (alta) com stop curto abaixo da linha.</li>
+      <li><b>Fraca:</b> só 2 toques, inclinação acima de 45° ou linha forçada passando por dentro dos candles. Movimento vertical não se sustenta: a linha rompe cedo e sem significado.</li>
+      <li><b>Rompida:</b> vale o <b>fechamento</b> do outro lado, não o pavio. Rompimento é alerta de fim de tendência; a entrada vem do reteste da linha pelo lado de fora.</li>
+      <li>Linha de tendência é <b>diagonal</b> e envelhece: reajuste conforme novos fundos aparecem. Em prazos longos, use escala logarítmica.</li>
+    </ul>
+  </div>
+
+  <div class="pn" id="suporte">
+    <h3>Suporte e resistência</h3>
+    <p class="def"><b>Suporte</b> é uma região onde a queda costuma parar. <b>Resistência</b> é uma região onde a alta costuma parar.</p>
+    <div class="seg sm" id="srTabs" role="group" aria-label="Exemplo de suporte e resistência"><button class="on" data-k="band">Faixa e inversão</button><button data-k="strong">Forte</button><button data-k="weak">Fraca</button></div>
+    <div class="pfig" id="srFig"></div>
+    <p class="cap"><span class="kdt">Números</span> = toques na faixa. <button id="srReplay">Repetir animação</button></p>
+    <ul>
+      <li><b>Por que existem:</b> muita gente comprou, vendeu ou deixou ordens naqueles preços, e o mercado "lembra" deles.</li>
+      <li><b>Como marcar:</b> procure onde o preço virou 2 ou mais vezes e desenhe uma <b>faixa</b>, não uma linha exata.</li>
+      <li><b>Nível forte:</b> 3 toques ou mais na mesma faixa, reações rápidas e visíveis, timeframe maior (1h, 4h, 1D). Serve para alvo, stop e decisão de entrada.</li>
+      <li><b>Nível fraco:</b> 1 toque, faixa larga demais, timeframe pequeno ou desenhada em meio a candles. Rompe sem avisar: não apoie o stop nela.</li>
+      <li><b>Inversão:</b> resistência rompida (fechamento acima) vira suporte, e o contrário. O reteste é uma boa entrada.</li>
+      <li>Suporte e resistência são <b>horizontais</b>; linha de tendência é diagonal. Os dois juntos no mesmo preço = confluência.</li>
+    </ul>
+  </div>
+
+  <div class="pn" id="fractal" data-v="one">
+    <h3>Fractalidade e timeframes</h3>
+    <p class="lead">Fractal é uma forma que se repete em qualquer escala. No mercado, impulso, correção, topo, fundo e nível aparecem iguais no gráfico de 1 hora e no de 1 minuto. Por isso você <b>navega entre timeframes</b> sem trocar de estratégia: só muda o zoom.</p>
+    <div class="chart" id="tfLadder"></div>
+    <ul>
+      <li><b>Cada vela contém as de baixo:</b> 1 vela de 1h = 4 de 15m = 12 de 5m = 60 de 1m.</li>
+      <li><b>Day trade costuma viver entre 5m e 1m.</b> Você decide e entra nesses timeframes, mas olha o 15m e o 1h para saber a tendência e os níveis.</li>
+      <li><b>Top-down:</b> comece no maior (contexto), desça até o menor (gatilho) e volte ao 5m para gerir. Stop e alvo nascem no timeframe da decisão; o 1m só refina a entrada.</li>
+      <li><b>Alinhamento:</b> um sinal no 5m a favor da tendência do 15m e do 1h vale mais que um sinal só no 1m.</li>
+    </ul>
+    <div class="tfbar" aria-label="Exemplo da barra de timeframes"><span class="dt">1m</span><span class="dt">5m</span><span class="ctx">15m</span><span class="ctx">1h</span><span class="ctx">4h</span><span class="ctx">1D</span></div>
+    <p class="cap"><span class="kdt">Azul</span> = faixa do day trade. Troque o timeframe pela barra no topo do gráfico. No TradingView, digitar o número e dar Enter também troca (5, 15, 60). Confirme como fica no Tron.</p>
+
+    <p class="kh">Veja ao vivo: o mesmo mercado em 4 escalas</p>
+    <div class="ctl">
+      <div class="seg" id="frTabs" role="group" aria-label="Timeframe"><button data-k="0" class="on">1h</button><button data-k="1">15m</button><button data-k="2">5m</button><button data-k="3">1m</button></div>
+      <button id="frTour" class="pri">Zoom automático</button>
+    </div>
+    <div class="ctl">
+      <button id="frPlay">Pausar</button>
+      <div class="seg" id="frSpeed"><button class="on" data-s="1">1x</button><button data-s="3">3x</button><button data-s="8">8x</button></div>
+      <div class="seg" id="frView"><button class="on" data-v="one">Um gráfico</button><button data-v="all">4 escalas</button></div>
+      <button id="frNew">Novo cenário</button>
+      <output id="frClock"></output>
+    </div>
+    <input id="frSlider" type="range" aria-label="Posição no tempo">
+    <div id="frCharts"></div>
+    <p class="cap" id="frCap"></p>
+    <ul>
+      <li>O retângulo tracejado mostra o trecho que vira o gráfico do timeframe logo abaixo. Clique nos botões ou use o <b>zoom automático</b> para descer e subir a escada.</li>
+      <li>O eixo de preço muda em cada escala, por isso as formas parecem iguais: tendência, pullback, topos e fundos em todo timeframe.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 2 CANDLES -->
+<section id="s2">
+  <div class="sh"><span class="n">2</span><h2>Candles de rejeição</h2><span class="tm">15 min</span></div>
+  <p class="intro">Um candle sozinho não é setup. Ele vira sinal no lugar certo, com contexto e confirmação.</p>
+  <div class="pn">
+    <h3>Barra de rejeição (pin bar)</h3>
+    <p class="lead">Candle de pavio longo e corpo pequeno: o preço foi longe, mas foi devolvido. O lado oposto assumiu o controle naquele nível.</p>
+    <ul>
+      <li><b>Pavio embaixo</b> (martelo): compradores defenderam um suporte. <b>Pavio em cima</b> (estrela cadente): vendedores defenderam uma resistência.</li>
+      <li><b>Regra prática:</b> pavio de pelo menos 60% da amplitude (máxima menos mínima) e 2x o corpo. Exemplo: abertura 104, máxima 105, mínima 92, fechamento 103. Amplitude 13, pavio 11 (85%), corpo 1 (8%). É um martelo.</li>
+      <li><b>Onde vale:</b> em suporte/resistência, EMA 21/50, VWAP ou Fibonacci 50 a 61,8%, depois de um movimento, com volume acima da média e em timeframe maior.</li>
+    </ul>
+    <div class="kv"><b>Entrada</b><span>Rompimento da máxima do pin bar (compra) ou da mínima (venda).</span><b>Stop</b><span>Além da ponta do pavio, com folga (cerca de 0,5x ATR).</span><b>Alvo</b><span>Próximo nível, ou 1:2.</span></div>
+    <p class="pit">No meio do nada, pin bar vale pouco. Pavio grande alarga o stop: calcule a posição por ele (calculadora da seção 7).</p>
+  </div>
+  <div class="cgrid" id="candleGrid"></div>
+  <p class="cap">Linha âmbar: nível. Moldura pontilhada: candle-chave. Regra geral: <b>local + contexto + confirmação</b> (o fechamento é o que vale).</p>
+</section>
+
+<!-- 3 INDICADORES -->
+<section id="s3">
+  <div class="sh"><span class="n">3</span><h2>Indicadores</h2><span class="tm">45 min</span></div>
+  <p class="intro">Onze indicadores em quatro famílias. No TradingView: botão <b>Indicadores</b> (fx) na barra superior, busque pelo nome. Abra "Cálculo e exemplo" quando quiser ver a conta.</p>
+  <div class="tip" style="margin:0 0 4px"><b>Não empilhe indicadores do mesmo tipo.</b> RSI, Estocástico e MACD dizem quase a mesma coisa. Combinação enxuta: EMAs (tendência), RSI (momentum), Volume/VWAP e ATR (stop). <button id="reseed" style="margin-left:6px">Novo cenário nos gráficos</button></div>
+  <div id="indList"></div>
+</section>
+
+<!-- 4 PADRÕES -->
+<section id="s4">
+  <div class="sh"><span class="n">4</span><h2>Padrões gráficos</h2><span class="tm">30 min</span></div>
+  <p class="intro">Formas que o preço desenha e que repetem o comportamento da multidão. Os desenhos animam ao entrar na tela.</p>
+  <div class="pn">
+    <h3>Regras para todos os padrões</h3>
+    <ul>
+      <li><b>Continuação</b> (bandeira, triângulos): aparecem no meio da tendência. <b>Reversão</b> (topo/fundo duplo, OCO): exigem tendência prévia.</li>
+      <li>Cada linha precisa de <b>2 toques</b> no mínimo. O padrão só vale quando um candle <b>fecha</b> além da linha-chave, de preferência com volume acima da média.</li>
+      <li><b>Alvo medido:</b> projete a altura da formação a partir do rompimento. Depois do rompimento, o preço costuma testar a linha rompida (reteste): ótima entrada.</li>
+      <li>Se o preço volta para dentro da formação, o padrão falhou. Saia.</li>
+    </ul>
+    <div class="tip"><b>No TradingView:</b> ferramentas de desenho na barra esquerda (linha de tendência, canal paralelo, retângulo, pasta de Padrões). A ferramenta <b>Posição Long/Short</b> desenha stop, alvo e risco/retorno no gráfico.</div>
+  </div>
+  <div id="patList"></div>
+</section>
+
+<!-- 5 SETUPS -->
+<section id="s5">
+  <div class="sh"><span class="n">5</span><h2>Setups</h2><span class="tm">20 min</span></div>
+  <p class="intro">Setup é uma receita: contexto, gatilho, stop e alvo. Cada um combina indicadores de famílias diferentes.</p>
+  <div class="note">Setups são hipóteses. Teste cada um no <b>Bar Replay</b> (pelo menos 30 operações simuladas) antes de usar dinheiro. Os números (RSI 40, 1,5x ATR) são pontos de partida, não valores mágicos.</div>
+  <div id="setupList"></div>
+  <div class="pn">
+    <h3>Checklist de confluência</h3>
+    <p class="lead">Marque o que for verdadeiro. Menos de 4, fique de fora.</p>
+    <ul><li>Tendência do timeframe maior a favor.</li><li>Preço em nível relevante (suporte/resistência, média, VWAP, Fibonacci).</li><li>Candle de gatilho (rejeição, engolfo) ou rompimento fechado.</li><li>Volume ou momentum confirmando (famílias diferentes contam separado).</li><li>Risco/retorno de pelo menos 1:2 com stop lógico.</li></ul>
+  </div>
+</section>
+
+<!-- 6 EXECUÇÃO -->
+<section id="s6">
+  <div class="sh"><span class="n">6</span><h2>Execução</h2><span class="tm">30 min</span></div>
+  <p class="intro">Ferramentas do gráfico, leitura do livro de ofertas (DOM) e tipos de ordem.</p>
+
+  <div class="pn">
+    <h3>Escala linear x logarítmica</h3>
+    <p>No canto inferior direito do gráfico: <b>auto</b>, <b>%</b> e <b>log</b>. Na <b>linear</b>, a mesma distância vale o mesmo valor em dólares. Na <b>log</b>, vale a mesma variação percentual.</p>
+    <p class="ex">BTC de 10.000 para 20.000 (+100%) e de 20.000 para 40.000 (+100%): na linear a segunda parece o dobro; na log são iguais. Use log em gráficos diários/semanais e ativos que andaram muito; linear no intradiário.</p>
+    <p class="ex"><b>Retorno logarítmico:</b> ln(preço hoje / preço ontem). Soma no tempo: +100% e depois −50% = ln 2 + ln 0,5 = 0 (voltou ao mesmo preço), enquanto em % simples parece +50%.</p>
+  </div>
+
+  <div class="pn">
+    <h3>Retração de Fibonacci</h3>
+    <div class="chart" data-chart="fib"></div>
+    <ul>
+      <li>Clique no <b>fundo</b> do movimento e arraste até o <b>topo</b> (em alta; em queda, o inverso). Níveis: 23,6, 38,2, 50, 61,8 e 78,6%.</li>
+      <li>Correção rasa (até 38,2%) indica tendência forte. A zona de 50 a 61,8% é a mais observada. Além de 78,6% a tendência pode ter acabado.</li>
+      <li>Exemplo: fundo 60.000, topo 70.000 → 38,2% = 66.180; 50% = 65.000; 61,8% = 63.820.</li>
+    </ul>
+    <p class="pit">Só vale quando coincide com outra coisa (suporte, média, VWAP).</p>
+  </div>
+
+  <div class="pn">
+    <h3>Perfil de Volume</h3>
+    <div class="chart" id="vp"></div><p class="cap" id="vpInfo"></p>
+    <ul><li><b>POC:</b> preço com mais volume, o "ímã" da região. <b>Área de valor:</b> faixa com cerca de 70% do volume.</li><li>Nós de alto volume seguram o preço; vazios de volume o preço atravessa rápido.</li></ul>
+  </div>
+
+  <div class="pn">
+    <h3>Dados de derivativos (cripto)</h3>
+    <ul>
+      <li><b>Funding rate:</b> taxa entre comprados e vendidos no perpétuo. Muito positiva: excesso de comprados. Muito negativa: excesso de vendidos.</li>
+      <li><b>Open Interest:</b> contratos abertos. Preço e OI subindo: dinheiro novo na tendência. Preço subindo com OI caindo: fechamento de vendidos, alta mais frágil.</li>
+      <li><b>Liquidações:</b> posições alavancadas fechadas à força. Cascatas causam movimentos rápidos.</li>
+    </ul>
+  </div>
+
+  <div class="pn" id="dom">
+    <h3>DOM (livro de ofertas)</h3>
+    <ul>
+      <li><b>Bids</b> (verde) são ordens de compra abaixo do preço. <b>Asks</b> (vermelho) são ordens de venda acima. A diferença entre o melhor bid e o melhor ask é o <b>spread</b>.</li>
+      <li>Cada nível mostra o tamanho disponível. Tamanho grande é uma "parede" de liquidez.</li>
+      <li>Ordem <b>a mercado</b> "come" os níveis do melhor para o pior preço. Se for maior que o primeiro nível, o preço médio piora: <b>slippage</b>.</li>
+      <li>Ordens no mesmo preço executam por ordem de chegada (fila).</li>
+    </ul>
+    <p class="pit">Paredes podem sumir (spoofing) ou estar escondidas (iceberg). O livro mostra intenção, não garantia.</p>
+    <h3 style="font-size:16px;margin:14px 0 6px">Simulador: ordem a mercado</h3>
+    <div class="seg" role="group" aria-label="Lado da ordem"><button id="sideBuy" class="on">Compra</button><button id="sideSell">Venda</button></div>
+    <div style="margin:2px 0 8px"><label for="qty" style="font-size:14px">Tamanho: <b id="qtyOut" class="mono"></b></label><input id="qty" type="range" min="0.5" max="15" step="0.5" value="3"></div>
+    <div class="dom" id="domBox" aria-live="polite"></div>
+    <div class="tip" id="domSum"></div>
+    <p class="cap">Outras ferramentas de fluxo: <b>Time &amp; Sales</b> (cada negócio, com lado), <b>Footprint</b> (volume comprado e vendido por preço em cada candle), <b>Heatmap de liquidez</b> (histórico do livro).</p>
+  </div>
+
+  <div class="pn" id="ordens">
+    <h3>Tipos de ordem</h3>
+    <div class="ladder">
+      <div><span><b>Sell Limit</b>: vender mais caro (realizar lucro)</span><span class="mono">66.500</span></div>
+      <div><span><b>Buy Stop</b>: comprar rompimento</span><span class="mono">66.000</span></div>
+      <div class="now">preço atual 65.000</div>
+      <div><span><b>Buy Limit</b>: comprar mais barato (pullback)</span><span class="mono">64.000</span></div>
+      <div><span><b>Sell Stop</b>: stop de quem está comprado</span><span class="mono">63.500</span></div>
+    </div>
+    <p class="cap"><b>Limit</b> espera o preço vir até ela. <b>Stop</b> dispara quando o preço vai até ela.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Ordem</th><th>O que faz</th><th>Quando usar / cuidado</th></tr></thead>
+      <tbody>
+        <tr><td>Market</td><td>Executa agora no melhor preço do livro.</td><td>Quando a velocidade importa. Paga spread e slippage (taxa de taker).</td></tr>
+        <tr><td>Limit</td><td>Só executa no preço definido ou melhor.</td><td>Entrar em pullback, realizar lucro. Pode não executar. Taxa de maker (menor).</td></tr>
+        <tr><td>Stop Market</td><td>No gatilho, vira ordem a mercado.</td><td>Stop loss. Em movimento rápido executa pior que o gatilho.</td></tr>
+        <tr><td>Stop Limit</td><td>No gatilho, vira ordem limitada.</td><td>Controla o preço, mas se o preço pular o limite, não executa e você fica sem proteção.</td></tr>
+        <tr><td>Take Profit</td><td>Fecha a posição no alvo.</td><td>Defina junto com o stop, na entrada.</td></tr>
+        <tr><td>OCO</td><td>Duas ordens ligadas (alvo e stop): uma executa, a outra cancela.</td><td>Sair com alvo e stop ao mesmo tempo.</td></tr>
+        <tr><td>Trailing Stop</td><td>Stop que acompanha o preço a uma distância fixa.</td><td>Deixar o lucro correr. Distância curta demais estopa no ruído (use o ATR).</td></tr>
+        <tr><td>Post-Only / Reduce-Only</td><td>Só entra como maker / só reduz posição.</td><td>Garantir taxa de maker / evitar abrir posição contrária sem querer.</td></tr>
+      </tbody>
+    </table></div>
+    <p class="cap"><b>Validade:</b> GTC (até cancelar), IOC (executa o que der e cancela o resto), FOK (tudo ou nada).</p>
+  </div>
+</section>
+
+<!-- 7 RISCO -->
+<section id="s7">
+  <div class="sh"><span class="n">7</span><h2>Risco e primeiros testes</h2><span class="tm">20 min</span></div>
+  <p class="intro">O que separa quem dura de quem some é o tamanho da posição, não o indicador.</p>
+
+  <div class="pn">
+    <h3>Calculadora de posição</h3>
+    <div class="fields">
+      <label>Capital (US$)<input id="rCap" inputmode="decimal" value="10000"></label>
+      <label>Risco por operação (%)<input id="rRisk" inputmode="decimal" value="1"></label>
+      <label>Entrada<input id="rEntry" inputmode="decimal" value="65000"></label>
+      <label>Stop<input id="rStop" inputmode="decimal" value="63700"></label>
+      <label>Alvo<input id="rTarget" inputmode="decimal" value="68000"></label>
+      <label>Alavancagem (x)<input id="rLev" inputmode="decimal" value="5"></label>
+    </div>
+    <div class="out" id="rOut"></div>
+    <div class="note" id="rMsg" style="display:none;margin-top:10px"></div>
+  </div>
+
+  <div class="pn">
+    <h3>Regras que valem para todos</h3>
+    <ul>
+      <li><b>Risco de 0,5% a 2% do capital por operação.</b> Com 1%, dez perdas seguidas custam cerca de 10%.</li>
+      <li><b>Stop e alvo definidos antes de entrar.</b> O stop é onde a ideia deixa de valer, não quanto você aguenta perder.</li>
+      <li><b>Alavancagem</b> só reduz a margem usada e aproxima o preço de liquidação. O risco é definido pelo tamanho da posição e pelo stop.</li>
+      <li><b>Taxa de acerto para empatar</b> = 1 / (1 + R:R). Com R:R 1:1 precisa de 50%; 1:2, 33%; 1:3, 25% (sem contar taxas e slippage).</li>
+    </ul>
+  </div>
+
+  <div class="pn">
+    <h3>Cola rápida dos indicadores</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Indicador</th><th>Sinal de alta</th><th>Sinal de baixa</th><th>Padrão</th></tr></thead>
+      <tbody>
+        <tr><td>SMA / EMA</td><td>Preço acima, média subindo, cruza para cima</td><td>O inverso</td><td>20·50·200 / 9·21</td></tr>
+        <tr><td>MACD</td><td>Cruza o sinal para cima; acima de 0</td><td>Cruza para baixo; abaixo de 0</td><td>12·26·9</td></tr>
+        <tr><td>ADX</td><td colspan="2">Acima de 25 tendência (direção pelo +DI/−DI); abaixo de 20 lateral</td><td>14</td></tr>
+        <tr><td>RSI</td><td>Acima de 50; sai de abaixo de 30; divergência de alta</td><td>Abaixo de 50; sai de acima de 70; divergência de baixa</td><td>14</td></tr>
+        <tr><td>Estocástico</td><td>%K cruza %D para cima abaixo de 20</td><td>%K cruza %D para baixo acima de 80</td><td>14·3·3</td></tr>
+        <tr><td>Bollinger</td><td>Rompe para cima após squeeze</td><td>Rompe para baixo após squeeze</td><td>20·2</td></tr>
+        <tr><td>ATR</td><td colspan="2">Sem direção: stop de 1,5 a 3x ATR e tamanho da posição</td><td>14</td></tr>
+        <tr><td>Volume / OBV</td><td>Sobe com o preço; RVOL acima de 1,5 no rompimento</td><td>Sobe nas quedas; clímax com pavio após alta longa</td><td>Média 20</td></tr>
+        <tr><td>VWAP</td><td>Preço acima; pullback segura</td><td>Preço abaixo; repique falha</td><td>Sessão</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="pn">
+    <h3>Seus primeiros testes</h3>
+    <ol class="steps">
+      <li><b>Abra BTC/USDT em 1h e 15m.</b> Marque a tendência e duas faixas de suporte/resistência.</li>
+      <li><b>Adicione EMA 21 e 50, RSI e Volume.</b> Ache 3 pullbacks passados na EMA 21.</li>
+      <li><b>Use o Bar Replay</b> para simular 10 operações do setup de pullback, anotando entrada, stop, alvo e resultado.</li>
+      <li><b>Desenhe um padrão</b> (bandeira ou triângulo) e projete o alvo.</li>
+      <li><b>Abra o DOM</b> e observe spread e paredes por 10 minutos, sem operar.</li>
+      <li><b>Faça 3 ordens de valor mínimo</b> (ou em conta de simulação): limit, stop e market. Compare as taxas.</li>
+      <li><b>Regra fixa:</b> risco de no máximo 1% e stop definido antes da entrada.</li>
+    </ol>
+  </div>
+</section>
+
+<footer>Material educacional. Dados simulados, sem relação com ativos reais. Resultados passados e simulações não garantem resultados futuros.</footer>
+</main>
+<script>
+(function(){
+"use strict";
+var $=function(s){return document.querySelector(s)},$$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))};
+/* ---------- tema ---------- */
+$('#themeBtn').addEventListener('click',function(){
+  var r=document.documentElement, cur=r.getAttribute('data-theme');
+  if(!cur) cur=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';
+  r.setAttribute('data-theme',cur==='dark'?'light':'dark');
+});
+
+/* ---------- dados simulados ---------- */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+var VIS=100, D=[], IND={}, seed=20260930;
+
+function gen(sd){
+  var r=mulberry32(sd);
+  function g(){var u=0,v=0;while(!u)u=r();while(!v)v=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+  var N=240,p=60000,center=p,out=[];
+  for(var i=0;i<N;i++){
+    var drift;
+    if(i<100)drift=0.0012; else if(i<140)drift=-0.0016; else if(i<180)drift=0; else drift=0.0015;
+    if(i===140)center=p;
+    var rev=(i>=140&&i<180)?-0.05*Math.log(p/center):0;
+    var ret=drift+rev+0.0065*g();
+    var o=p,c=p*Math.exp(ret);
+    var h=Math.max(o,c)*(1+Math.abs(g())*0.0025);
+    var l=Math.min(o,c)*(1-Math.abs(g())*0.0025);
+    var v=Math.round(400+Math.abs(ret)/0.0065*350+r()*300);
+    out.push({o:o,h:h,l:l,c:c,v:v});
+    p=c;
+  }
+  return out;
+}
+
+/* ---------- indicadores ---------- */
+function sma(a,n){var o=[];for(var i=0;i<a.length;i++){if(i<n-1){o.push(null);continue}var s=0,ok=true;for(var j=i-n+1;j<=i;j++){if(a[j]==null){ok=false;break}s+=a[j]}o.push(ok?s/n:null)}return o}
+function ema(a,n){
+  var o=[],k=2/(n+1),f=-1;
+  for(var i=0;i<a.length;i++){if(a[i]!=null){f=i;break}}
+  for(i=0;i<a.length;i++){
+    if(f<0||i<f+n-1){o.push(null);continue}
+    if(i===f+n-1){var s=0;for(var j=f;j<=i;j++)s+=a[j];o.push(s/n);continue}
+    o.push(a[i]*k+o[i-1]*(1-k));
+  }
+  return o;
+}
+function vwap(d){var o=[],cpv=0,cv=0;for(var i=0;i<d.length;i++){if(i%24===0){cpv=0;cv=0}var tp=(d[i].h+d[i].l+d[i].c)/3;cpv+=tp*d[i].v;cv+=d[i].v;o.push(cpv/cv)}return o}
+function boll(a,n,k){
+  var m=sma(a,n),U=[],L=[];
+  for(var i=0;i<a.length;i++){
+    if(m[i]==null){U.push(null);L.push(null);continue}
+    var s=0;for(var j=i-n+1;j<=i;j++){s+=Math.pow(a[j]-m[i],2)}
+    var sd=Math.sqrt(s/n);U.push(m[i]+k*sd);L.push(m[i]-k*sd);
+  }
+  return {m:m,u:U,l:L};
+}
+function rsi(a,n){
+  var o=[null],ag=0,al=0;
+  for(var i=1;i<a.length;i++){
+    var ch=a[i]-a[i-1],gn=ch>0?ch:0,ls=ch<0?-ch:0;
+    if(i<=n){ag+=gn;al+=ls;if(i<n){o.push(null);continue}ag/=n;al/=n}
+    else{ag=(ag*(n-1)+gn)/n;al=(al*(n-1)+ls)/n}
+    o.push(al===0?100:100-100/(1+ag/al));
+  }
+  return o;
+}
+function stoch(d,n,ds){
+  var k=[];
+  for(var i=0;i<d.length;i++){
+    if(i<n-1){k.push(null);continue}
+    var hh=-1e18,ll=1e18;
+    for(var j=i-n+1;j<=i;j++){if(d[j].h>hh)hh=d[j].h;if(d[j].l<ll)ll=d[j].l}
+    k.push(hh===ll?50:(d[i].c-ll)/(hh-ll)*100);
+  }
+  return {k:k,d:sma(k,ds)};
+}
+function trueRange(d){var t=[d[0].h-d[0].l];for(var i=1;i<d.length;i++){t.push(Math.max(d[i].h-d[i].l,Math.abs(d[i].h-d[i-1].c),Math.abs(d[i].l-d[i-1].c)))}return t}
+function atr(d,n){
+  var tr=trueRange(d),o=[],a=0;
+  for(var i=0;i<d.length;i++){
+    if(i<n-1){o.push(null);continue}
+    if(i===n-1){var s=0;for(var j=0;j<n;j++)s+=tr[j];a=s/n}
+    else a=(a*(n-1)+tr[i])/n;
+    o.push(a);
+  }
+  return o;
+}
+function obv(d){var o=[0];for(var i=1;i<d.length;i++){var p=o[i-1];if(d[i].c>d[i-1].c)p+=d[i].v;else if(d[i].c<d[i-1].c)p-=d[i].v;o.push(p)}return o}
+function adx(d,n){
+  var len=d.length,pdi=[],mdi=[],ax=[];
+  for(var i=0;i<len;i++){pdi.push(null);mdi.push(null);ax.push(null)}
+  var tr=trueRange(d),pdm=[0],mdm=[0];
+  for(i=1;i<len;i++){
+    var up=d[i].h-d[i-1].h,dn=d[i-1].l-d[i].l;
+    pdm.push(up>dn&&up>0?up:0);mdm.push(dn>up&&dn>0?dn:0);
+  }
+  var sT=0,sP=0,sM=0,dx=[];
+  for(i=1;i<len;i++){
+    if(i<=n){sT+=tr[i];sP+=pdm[i];sM+=mdm[i]}
+    else{sT=sT-sT/n+tr[i];sP=sP-sP/n+pdm[i];sM=sM-sM/n+mdm[i]}
+    if(i>=n){
+      var pp=100*sP/sT,mm=100*sM/sT;
+      pdi[i]=pp;mdi[i]=mm;
+      dx[i]=(pp+mm)===0?0:100*Math.abs(pp-mm)/(pp+mm);
+    }
+  }
+  var a=0;
+  for(i=n;i<len;i++){
+    if(i<2*n-1)continue;
+    if(i===2*n-1){var s=0;for(var j=n;j<=i;j++)s+=dx[j];a=s/n}
+    else a=(a*(n-1)+dx[i])/n;
+    ax[i]=a;
+  }
+  return {adx:ax,p:pdi,m:mdi};
+}
+
+function build(){
+  var C=D.map(function(x){return x.c});
+  IND.sma20=sma(C,20);IND.sma50=sma(C,50);
+  IND.ema9=ema(C,9);IND.ema21=ema(C,21);
+  IND.vwap=vwap(D);
+  var b=boll(C,20,2);IND.bbM=b.m;IND.bbU=b.u;IND.bbL=b.l;IND.bbW=b.m.map(function(m,i){return m==null?null:(b.u[i]-b.l[i])/m*100});
+  IND.rsi=rsi(C,14);
+  var e12=ema(C,12),e26=ema(C,26),mc=[];
+  for(var i=0;i<C.length;i++)mc.push(e12[i]!=null&&e26[i]!=null?e12[i]-e26[i]:null);
+  var sg=ema(mc,9),hs=[];
+  for(i=0;i<C.length;i++)hs.push(mc[i]!=null&&sg[i]!=null?mc[i]-sg[i]:null);
+  IND.macd=mc;IND.sig=sg;IND.hist=hs;
+  var st=stoch(D,14,3);IND.stK=st.k;IND.stD=st.d;
+  IND.atr=atr(D,14);
+  IND.obv=obv(D);
+  var ad=adx(D,14);IND.adx=ad.adx;IND.pdi=ad.p;IND.mdi=ad.m;
+}
+
+/* ---------- desenho ---------- */
+function fmt(v){return Math.round(v).toLocaleString('pt-BR')}
+function nf(v){return Math.abs(v)>=1000?fmt(v):v.toFixed(Math.abs(v)<10?2:1).replace('.',',')}
+function pathOf(data,s,e,X,Y){
+  var d='',pen=false;
+  for(var i=s;i<e;i++){var v=data[i];if(v==null){pen=false;continue}d+=(pen?'L':'M')+X(i).toFixed(1)+' '+Y(v).toFixed(1);pen=true}
+  return d;
+}
+
+function chart(el,o){
+  var W=400,ml=6,mr=46,top=6,mainH=o.mainH||200;
+  var volH=o.vol?(o.volH||36):0,panH=o.panel?96:0;
+  var H=top+mainH+(volH?volH+6:0)+(panH?panH+18:0)+14;
+  var e=D.length,n=Math.min(VIS,e),s=e-n,cw=(W-ml-mr)/n;
+  function X(i){return ml+(i-s+.5)*cw}
+  var lo=1e18,hi=-1e18,i,k,v;
+  function upd(v){if(v==null||isNaN(v))return;if(v<lo)lo=v;if(v>hi)hi=v}
+  for(i=s;i<e;i++){upd(D[i].h);upd(D[i].l)}
+  (o.overlays||[]).forEach(function(l){for(var i=s;i<e;i++)upd(l.data[i])});
+  if(o.band){for(i=s;i<e;i++){upd(o.band.u[i]);upd(o.band.l[i])}}
+  var pad=(hi-lo)*0.04;lo-=pad;hi+=pad;
+  var T=o.log?Math.log:function(v){return v};
+  var tl=T(lo),th=T(hi);
+  function Y(v){return top+(th-T(v))/(th-tl)*mainH}
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+(o.aria||'Gráfico de preço com indicador')+'">';
+
+  for(k=0;k<=4;k++){
+    v=o.log?Math.exp(tl+(th-tl)*k/4):lo+(hi-lo)*k/4;
+    var gy=Y(v);
+    svg+='<line class="grid" x1="'+ml+'" x2="'+(W-mr)+'" y1="'+gy.toFixed(1)+'" y2="'+gy.toFixed(1)+'"/>';
+    svg+='<text class="ax" x="'+(W-mr+3)+'" y="'+(gy+3).toFixed(1)+'">'+fmt(v)+'</text>';
+  }
+  if(o.sessions){
+    for(i=s+1;i<e;i++){if(i%24===0){svg+='<line class="grid dash" x1="'+(X(i)-cw/2).toFixed(1)+'" x2="'+(X(i)-cw/2).toFixed(1)+'" y1="'+top+'" y2="'+(top+mainH+(volH?volH+6:0))+'"/>'}}
+  }
+  if(o.band){
+    var up=[],dn=[];
+    for(i=s;i<e;i++){if(o.band.u[i]!=null){up.push(X(i).toFixed(1)+','+Y(o.band.u[i]).toFixed(1));dn.unshift(X(i).toFixed(1)+','+Y(o.band.l[i]).toFixed(1))}}
+    svg+='<polygon points="'+up.join(' ')+' '+dn.join(' ')+'" style="fill:var(--c2);opacity:.12"/>';
+    svg+='<path d="'+pathOf(o.band.u,s,e,X,Y)+'" style="fill:none;stroke:var(--c2);stroke-width:1.2"/>';
+    svg+='<path d="'+pathOf(o.band.l,s,e,X,Y)+'" style="fill:none;stroke:var(--c2);stroke-width:1.2"/>';
+  }
+  var bw=Math.max(1.4,cw*0.68);
+  for(i=s;i<e;i++){
+    var d=D[i],cls=d.c>=d.o?'u':'d';
+    var yo=Y(d.o),yc=Y(d.c);
+    svg+='<line class="'+cls+'" x1="'+X(i).toFixed(1)+'" x2="'+X(i).toFixed(1)+'" y1="'+Y(d.h).toFixed(1)+'" y2="'+Y(d.l).toFixed(1)+'" style="stroke-width:1"/>';
+    svg+='<rect class="'+cls+'" x="'+(X(i)-bw/2).toFixed(1)+'" y="'+Math.min(yo,yc).toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+Math.max(1,Math.abs(yo-yc)).toFixed(1)+'" style="stroke-width:.4"/>';
+  }
+  (o.overlays||[]).forEach(function(l){
+    svg+='<path d="'+pathOf(l.data,s,e,X,Y)+'" style="fill:none;stroke:'+l.color+';stroke-width:'+(l.w||1.5)+';stroke-linejoin:round"/>';
+  });
+
+  if(o.fib){
+    var hiI=s,loI=s;
+    for(i=s;i<e;i++){if(D[i].h>D[hiI].h)hiI=i;if(D[i].l<D[loI].l)loI=i}
+    var hiP=D[hiI].h,loP=D[loI].l,upT=loI<hiI,x0=X(Math.min(hiI,loI));
+    svg+='<line x1="'+X(loI).toFixed(1)+'" y1="'+Y(loP).toFixed(1)+'" x2="'+X(hiI).toFixed(1)+'" y2="'+Y(hiP).toFixed(1)+'" class="dash" style="stroke:var(--muted);stroke-width:1"/>';
+    var rs=[0,.236,.382,.5,.618,.786,1],cols=['var(--muted)','var(--c2)','var(--c3)','var(--c4)','var(--c1)','var(--c3)','var(--muted)'];
+    rs.forEach(function(r,idx){
+      var pr=upT?hiP-(hiP-loP)*r:loP+(hiP-loP)*r,yy=Y(pr).toFixed(1),strong=(r===.5||r===.618);
+      svg+='<line x1="'+x0.toFixed(1)+'" x2="'+(W-mr)+'" y1="'+yy+'" y2="'+yy+'" style="stroke:'+cols[idx]+';stroke-width:'+(strong?1.4:.9)+'"/>';
+      svg+='<text class="ax" x="'+(W-mr-3)+'" y="'+(yy-2)+'" text-anchor="end" style="fill:'+cols[idx]+'">'+(r*100).toFixed(1).replace('.',',')+'% '+fmt(pr)+'</text>';
+    });
+  }
+
+  var y1=top+mainH+6;
+  if(o.vol){
+    var mv=0;for(i=s;i<e;i++)if(D[i].v>mv)mv=D[i].v;
+    for(i=s;i<e;i++){
+      var hh=D[i].v/mv*volH;
+      svg+='<rect x="'+(X(i)-bw/2).toFixed(1)+'" y="'+(y1+volH-hh).toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+hh.toFixed(1)+'" style="fill:'+(D[i].c>=D[i].o?'var(--up)':'var(--down)')+';opacity:.5"/>';
+    }
+    if(o.volMA){var vm=sma(D.map(function(x){return x.v}),20);svg+='<path d="'+pathOf(vm,s,e,X,function(v){return y1+volH-v/mv*volH})+'" style="fill:none;stroke:var(--c1);stroke-width:1.6"/>'}
+    svg+='<text class="ttl" x="'+(ml+2)+'" y="'+(y1+9)+'">Volume</text>';
+    y1+=volH+6;
+  }
+
+  if(o.panel){
+    var P=o.panel,y0=y1+12,pmin,pmax;
+    if(P.range){pmin=P.range[0];pmax=P.range[1]}
+    else{
+      pmin=1e18;pmax=-1e18;
+      P.series.forEach(function(se){for(var i=s;i<e;i++){var v=se.data[i];if(v!=null){if(v<pmin)pmin=v;if(v>pmax)pmax=v}}});
+      if(P.zero){pmin=Math.min(pmin,0);pmax=Math.max(pmax,0)}
+      var pd=(pmax-pmin)*.1||1;pmin-=pd;pmax+=pd;
+    }
+    var PY=function(v){return y0+(pmax-v)/(pmax-pmin)*panH};
+    svg+='<rect x="'+ml+'" y="'+y0+'" width="'+(W-mr-ml)+'" height="'+panH+'" style="fill:none;stroke:var(--line);stroke-width:.8"/>';
+    svg+='<text class="ttl" x="'+(ml+2)+'" y="'+(y0-4)+'">'+P.title+'</text>';
+    (P.levels||[]).forEach(function(lv){
+      var ly=PY(lv).toFixed(1);
+      svg+='<line class="grid dash" x1="'+ml+'" x2="'+(W-mr)+'" y1="'+ly+'" y2="'+ly+'"/><text class="ax" x="'+(W-mr+3)+'" y="'+(+ly+3)+'">'+lv+'</text>';
+    });
+    if(P.zero){var zy=PY(0).toFixed(1);svg+='<line x1="'+ml+'" x2="'+(W-mr)+'" y1="'+zy+'" y2="'+zy+'" style="stroke:var(--muted);stroke-width:.7"/>'}
+    if(!P.levels){
+      svg+='<text class="ax" x="'+(W-mr+3)+'" y="'+(y0+8)+'">'+nf(pmax)+'</text><text class="ax" x="'+(W-mr+3)+'" y="'+(y0+panH)+'">'+nf(pmin)+'</text>';
+    }
+    P.series.forEach(function(se){
+      if(se.type==='bars'){
+        var base=PY(Math.max(pmin,Math.min(pmax,0)));
+        for(var i=s;i<e;i++){
+          var v=se.data[i];if(v==null)continue;
+          var yy=PY(v);
+          svg+='<rect x="'+(X(i)-bw/2).toFixed(1)+'" y="'+Math.min(yy,base).toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+Math.max(.6,Math.abs(yy-base)).toFixed(1)+'" style="fill:'+(v>=0?'var(--up)':'var(--down)')+';opacity:.6"/>';
+        }
+      }else{
+        svg+='<path d="'+pathOf(se.data,s,e,function(i){return X(i)},PY)+'" style="fill:none;stroke:'+se.color+';stroke-width:'+(se.w||1.4)+';stroke-linejoin:round"/>';
+      }
+    });
+  }
+  svg+='</svg>';
+
+  var lg=[];
+  (o.overlays||[]).forEach(function(l){lg.push([l.color,l.name])});
+  if(o.band)lg.push(['var(--c2)','Bandas (±2 desvios)']);
+  if(o.volMA)lg.push(['var(--c1)','Média de volume (20)']);
+  if(o.panel)o.panel.series.forEach(function(se){if(se.name)lg.push([se.color||'var(--muted)',se.name])});
+  var lh='';
+  if(lg.length)lh='<div class="legend">'+lg.map(function(x){return '<span><i style="background:'+x[0]+'"></i>'+x[1]+'</span>'}).join('')+'</div>';
+  el.innerHTML=svg+lh;
+}
+
+/* ---------- gráficos por chave ---------- */
+var CFG={
+  sma:function(){return{overlays:[{data:IND.sma20,color:'var(--c1)',name:'SMA 20'},{data:IND.sma50,color:'var(--c2)',name:'SMA 50'}]}},
+  ema:function(){return{overlays:[{data:IND.ema9,color:'var(--c4)',name:'EMA 9'},{data:IND.ema21,color:'var(--c3)',name:'EMA 21'}]}},
+  vwap:function(){return{vol:true,sessions:true,overlays:[{data:IND.vwap,color:'var(--c1)',name:'VWAP (reinicia a cada 24 candles)',w:2}]}},
+  bb:function(){return{band:{u:IND.bbU,l:IND.bbL},overlays:[{data:IND.bbM,color:'var(--c1)',name:'Média 20'}]}},
+  rsi:function(){return{mainH:150,panel:{title:'RSI 14',range:[0,100],levels:[30,70],series:[{data:IND.rsi,color:'var(--c3)',name:'RSI'}]}}},
+  macd:function(){return{mainH:150,panel:{title:'MACD 12, 26, 9',zero:true,series:[{data:IND.hist,type:'bars',color:'var(--muted)'},{data:IND.macd,color:'var(--c2)',name:'MACD'},{data:IND.sig,color:'var(--c1)',name:'Sinal'}]}}},
+  stoch:function(){return{mainH:150,panel:{title:'Estocástico 14, 3, 3',range:[0,100],levels:[20,80],series:[{data:IND.stK,color:'var(--c2)',name:'%K'},{data:IND.stD,color:'var(--c1)',name:'%D'}]}}},
+  atr:function(){return{mainH:150,panel:{title:'ATR 14 (US$)',series:[{data:IND.atr,color:'var(--c1)',name:'ATR',w:1.8}]}}},
+  obv:function(){return{mainH:150,panel:{title:'OBV',series:[{data:IND.obv,color:'var(--c4)',name:'OBV',w:1.6}]}}},
+  adx:function(){return{mainH:150,panel:{title:'ADX 14',range:[0,60],levels:[20,25,40],series:[{data:IND.adx,color:'var(--text)',name:'ADX',w:1.8},{data:IND.pdi,color:'var(--up)',name:'+DI',w:1.1},{data:IND.mdi,color:'var(--down)',name:'-DI',w:1.1}]}}},
+  vol:function(){return{mainH:130,vol:true,volH:90,volMA:true,overlays:[]}},
+  fib:function(){return{mainH:220,fib:true}},
+  sPull:function(){return{mainH:170,overlays:[{data:IND.ema21,color:'var(--c3)',name:'EMA 21'},{data:IND.sma50,color:'var(--c2)',name:'SMA 50'}],panel:{title:'RSI 14',range:[0,100],levels:[30,50,70],series:[{data:IND.rsi,color:'var(--c3)',name:'RSI'}]}}},
+  sSqz:function(){return{mainH:170,band:{u:IND.bbU,l:IND.bbL},overlays:[{data:IND.bbM,color:'var(--c1)',name:'Média 20'}],panel:{title:'Largura das bandas (%)',series:[{data:IND.bbW,color:'var(--c4)',name:'Largura',w:1.6}]}}},
+  sRev:function(){return{mainH:170,band:{u:IND.bbU,l:IND.bbL},overlays:[{data:IND.bbM,color:'var(--c1)',name:'Média 20'}],panel:{title:'RSI 14',range:[0,100],levels:[30,70],series:[{data:IND.rsi,color:'var(--c3)',name:'RSI'}]}}},
+  sVwap:function(){return{mainH:170,vol:true,sessions:true,overlays:[{data:IND.vwap,color:'var(--c1)',name:'VWAP',w:2},{data:IND.ema9,color:'var(--c4)',name:'EMA 9'}]}}
+};
+
+function vpRender(){
+  var el=$('#vp');if(!el)return;
+  var e=D.length,s=e-VIS,lo=1e18,hi=0,i,b;
+  for(i=s;i<e;i++){if(D[i].l<lo)lo=D[i].l;if(D[i].h>hi)hi=D[i].h}
+  var B=26,step=(hi-lo)/B,bins=[];
+  for(b=0;b<B;b++)bins.push(0);
+  for(i=s;i<e;i++){
+    var d=D[i],b0=Math.max(0,Math.floor((d.l-lo)/step)),b1=Math.min(B-1,Math.floor((d.h-lo)/step)),cnt=b1-b0+1;
+    for(b=b0;b<=b1;b++)bins[b]+=d.v/cnt;
+  }
+  var poc=0,tot=0,mx=0;
+  for(b=0;b<B;b++){tot+=bins[b];if(bins[b]>mx){mx=bins[b];poc=b}}
+  var a=poc,z=poc,acc=bins[poc];
+  while(acc<0.7*tot&&(a>0||z<B-1)){
+    var upv=z+1<B?bins[z+1]:-1,dnv=a-1>=0?bins[a-1]:-1;
+    if(upv>=dnv){z++;acc+=upv}else{a--;acc+=dnv}
+  }
+  var rh=8,H=B*rh+12,x0=50,W=400,svg='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Perfil de volume simulado">';
+  for(b=0;b<B;b++){
+    var y=(B-1-b)*rh+6,w=bins[b]/mx*(W-x0-70),inVA=b>=a&&b<=z;
+    var fill=b===poc?'var(--c1)':(inVA?'var(--c2)':'var(--muted)');
+    svg+='<rect x="'+x0+'" y="'+y+'" width="'+w.toFixed(1)+'" height="'+(rh-1.5)+'" style="fill:'+fill+';opacity:'+(b===poc?.95:(inVA?.6:.35))+'"/>';
+    if(b%5===0)svg+='<text class="ax" x="'+(x0-4)+'" y="'+(y+6)+'" text-anchor="end">'+fmt(lo+(b+.5)*step)+'</text>';
+  }
+  var pv=Math.max(0,Math.min(B-.01,(D[e-1].c-lo)/step)),cy=(B-pv)*rh+6;
+  svg+='<line x1="'+x0+'" x2="'+(W-8)+'" y1="'+cy.toFixed(1)+'" y2="'+cy.toFixed(1)+'" class="dash" style="stroke:var(--text);stroke-width:1"/>';
+  svg+='<text class="ax" x="'+(W-8)+'" y="'+(cy-3).toFixed(1)+'" text-anchor="end" style="fill:var(--text)">preço atual '+fmt(D[e-1].c)+'</text>';
+  svg+='</svg>';
+  el.innerHTML=svg;
+  $('#vpInfo').innerHTML='POC (amarelo): <b class="mono">'+fmt(lo+(poc+.5)*step)+'</b> | Área de valor (azul): <b class="mono">'+fmt(lo+a*step)+'</b> a <b class="mono">'+fmt(lo+(z+1)*step)+'</b> (cerca de 70% do volume).';
+}
+
+function renderAll(){
+  $$('.chart[data-chart]').forEach(function(el){chart(el,CFG[el.getAttribute('data-chart')]())});
+  vpRender();
+}
+function newSeed(sd){seed=sd;D=gen(seed);build();renderAll()}
+$('#reseed').addEventListener('click',function(){newSeed(Math.floor(Math.random()*1e9)+1)});
+
+/* ---------- helpers de lista ---------- */
+function lis(a){return a.map(function(x){return '<li>'+x+'</li>'}).join('')}
+
+/* ---------- candles de rejeição ---------- */
+var CANDLES=[
+  {t:'Martelo / pin bar de alta',k:[[98,100,82,84],[84,86,66,70],[66,72,28,70],[70,90,69,88]],hi:2,lv:30,lvt:'suporte',
+   x:'Depois de queda: pavio inferior longo, corpo pequeno no topo. Compradores rejeitaram os preços baixos. Confirma quando o candle seguinte fecha acima da máxima do martelo.'},
+  {t:'Estrela cadente / pin bar de baixa',k:[[20,36,18,34],[34,52,32,50],[52,96,50,55],[52,54,28,30]],hi:2,lv:96,lvt:'resistência',
+   x:'Depois de alta: pavio superior longo, corpo pequeno embaixo. Vendedores rejeitaram os preços altos. Confirma quando o candle seguinte perde a mínima.'},
+  {t:'Engolfo de alta',k:[[96,98,80,82],[82,84,64,66],[62,94,60,92]],hi:2,
+   x:'O corpo do candle de alta cobre por inteiro o corpo do candle de baixa anterior. Compradores assumem o controle. Vale mais em suporte.'},
+  {t:'Engolfo de baixa',k:[[20,38,18,36],[36,56,34,54],[58,60,22,24]],hi:2,
+   x:'O corpo do candle de baixa cobre o corpo do candle de alta anterior. Vendedores assumem. Vale mais em resistência.'},
+  {t:'Doji (indecisão)',k:[[55,80,30,55],[70,71,20,70],[30,80,29,30]],
+   x:'Abertura igual ao fechamento. Da esquerda para a direita: doji comum (pausa), libélula (pavio embaixo, rejeição de baixa) e lápide (pavio em cima, rejeição de alta). Só vale em nível.'},
+  {t:'Inside bar',k:[[30,90,25,85],[70,80,50,60],[62,98,60,96]],hi:1,
+   x:'O candle fica inteiro dentro da máxima e da mínima do anterior (o candle-mãe). Compressão. O rompimento da mãe indica a direção.'},
+  {t:'Estrela da manhã (reversão de alta)',k:[[90,92,50,52],[44,48,36,42],[46,90,44,86]],
+   x:'Três candles: baixa grande, candle pequeno de indecisão, alta grande que recupera mais da metade do primeiro. Aparece no fundo de quedas.'},
+  {t:'Estrela da noite (reversão de baixa)',k:[[20,62,18,60],[66,72,62,68],[64,66,24,28]],
+   x:'O espelho: alta grande, candle pequeno no topo, baixa grande que devolve mais da metade da alta. Aparece no topo de altas.'}
+];
+function candleBox(c){
+  var n=c.k.length,xs={1:[80],2:[60,100],3:[40,80,120],4:[30,63,96,129]}[n],bw=n===4?14:18;
+  function y(p){return +(118-p*1.06).toFixed(1)}
+  var s='<svg viewBox="0 0 160 130" role="img" aria-label="'+c.t+'">';
+  if(c.lv!=null){
+    s+='<line x1="6" x2="154" y1="'+y(c.lv)+'" y2="'+y(c.lv)+'" style="stroke:var(--c1);stroke-width:1;stroke-dasharray:4 3"/>';
+    s+='<text x="8" y="'+(y(c.lv)-3)+'" style="font:9px var(--sans);fill:var(--c1)">'+c.lvt+'</text>';
+  }
+  c.k.forEach(function(k,i){
+    var col=k[3]>=k[0]?'var(--up)':'var(--down)',x=xs[i];
+    var yt=y(Math.max(k[0],k[3])),yb=y(Math.min(k[0],k[3]));
+    s+='<line x1="'+x+'" x2="'+x+'" y1="'+y(k[1])+'" y2="'+y(k[2])+'" style="stroke:'+col+';stroke-width:1.6"/>';
+    s+='<rect x="'+(x-bw/2)+'" y="'+yt+'" width="'+bw+'" height="'+Math.max(1.6,yb-yt).toFixed(1)+'" style="fill:'+col+'"/>';
+  });
+  if(c.hi!=null){
+    var hx=xs[c.hi],hk=c.k[c.hi];
+    s+='<rect x="'+(hx-bw/2-5)+'" y="'+(y(hk[1])-4)+'" width="'+(bw+10)+'" height="'+(y(hk[2])-y(hk[1])+8).toFixed(1)+'" rx="4" style="fill:none;stroke:var(--accent);stroke-width:1;stroke-dasharray:3 2"/>';
+  }
+  s+='</svg>';
+  return '<div class="cbox"><b>'+c.t+'</b>'+s+'<p>'+c.x+'</p></div>';
+}
+function buildCandles(){$('#candleGrid').innerHTML=CANDLES.map(candleBox).join('')}
+
+/* ---------- indicadores ---------- */
+var GROUPS={trend:['Tendência','Onde o preço está indo','c2'],mom:['Momentum','Com que força','c3'],vola:['Volatilidade','Quanto o preço oscila','c1'],volu:['Volume','Quanta gente participa','c4']};
+var INDS=[
+ {g:'trend',id:'sma',t:'Média Móvel Simples (SMA)',lead:'Média dos últimos N fechamentos. Alisa o ruído e mostra a direção.',
+  how:['Preço acima da média e ela subindo: viés de alta. Abaixo e caindo: baixa.','Funciona como suporte/resistência dinâmica.','Média curta cruzando a longa (20/50) sugere virada. O clássico é 50/200 (golden e death cross).'],
+  calc:'SMA(N) = (P1 + P2 + ... + PN) / N',ex:'Fechamentos 100, 102, 101, 105, 107 → 515 / 5 = <b>103</b>. Entra 110 e sai 100: (102+101+105+107+110) / 5 = <b>105</b>.',
+  pit:'Sempre atrasada e falha em mercado lateral.',par:'20 · 50 · 200'},
+ {g:'trend',id:'ema',t:'Média Móvel Exponencial (EMA)',lead:'Como a SMA, mas pesa mais os candles recentes: reage mais rápido.',
+  how:['Mesma leitura da SMA, com timing melhor e mais ruído.','EMA 9 x 21 no curto prazo. EMA 200 como filtro: só compre acima dela.','Em tendência, o preço volta a tocar a EMA 21 antes de seguir: entrada clássica.'],
+  calc:'k = 2 / (N + 1)\nEMA = Preço x k + EMA anterior x (1 - k)',ex:'N = 5 → k = 0,333. EMA anterior 103 e preço 110: 110 x 0,333 + 103 x 0,667 = <b>105,33</b> (a SMA daria 105).',
+  pit:'Mais reativa significa mais cruzamentos falsos em lateral.',par:'9 · 21 · 50 · 200'},
+ {g:'trend',id:'macd',t:'MACD',lead:'Distância entre duas EMAs. Cresce quando a tendência ganha força e encolhe quando perde.',
+  how:['MACD cruza acima da linha de sinal: momentum de alta. Abaixo: de baixa.','Cruzar a linha zero significa que a EMA 12 cruzou a 26.','Histograma encolhendo com o preço ainda subindo: a força está diminuindo.'],
+  calc:'MACD = EMA(12) - EMA(26)\nSinal = EMA(9) do MACD\nHistograma = MACD - Sinal',ex:'EMA 12 = 64.200 e EMA 26 = 63.800 → MACD <b>400</b>. Sinal 350 → histograma <b>+50</b>.',
+  pit:'Atrasado por construção; cruzamentos falsos em série em lateral.',par:'12 · 26 · 9'},
+ {g:'trend',id:'adx',t:'ADX',lead:'Mede a força da tendência, não a direção. Ajuda a escolher a estratégia: tendência ou reversão.',
+  how:['Abaixo de 20: lateral. Acima de 25: tendência. Acima de 40: forte.','+DI acima de −DI: direção de alta. O inverso: baixa.','ADX caindo de um nível alto: a tendência está perdendo força.'],
+  calc:'+DI e -DI = 100 x movimento direcional suavizado / ATR\nDX = 100 x |+DI - -DI| / (+DI + -DI)\nADX = média de Wilder do DX (14)',ex:'+DI = 30 e −DI = 10 → DX = 100 x 20 / 40 = <b>50</b>.',
+  pit:'ADX alto não é "compre": uma queda forte também tem ADX alto.',par:'14 · linha em 25'},
+ {g:'mom',id:'rsi',t:'RSI (Índice de Força Relativa)',lead:'Oscilador de 0 a 100 que compara a força das altas com a das quedas recentes.',
+  how:['Acima de 70: sobrecomprado. Abaixo de 30: sobrevendido (útil em lateral).','Linha 50: acima, força compradora. Em alta, o RSI oscila entre 40 e 80; em baixa, entre 20 e 60.','Divergência: preço faz topo maior e o RSI topo menor, a força está acabando.'],
+  calc:'RS = média dos ganhos (14) / média das perdas (14)\nRSI = 100 - 100 / (1 + RS)\nWilder: média nova = (média anterior x 13 + valor) / 14',ex:'Ganhos 1,2 e perdas 0,6 → RS = 2 → RSI = <b>66,7</b>. Hoje +2,0: ganhos = (1,2 x 13 + 2) / 14 = 1,257; perdas = 0,557 → RSI <b>69,3</b>.',
+  pit:'Sobrecomprado não é "vai cair": em tendência forte o RSI passa semanas acima de 70.',par:'14 · níveis 30 e 70'},
+ {g:'mom',id:'stoch',t:'Estocástico',lead:'Mostra onde o fechamento está dentro da faixa entre máxima e mínima dos últimos N candles.',
+  how:['Acima de 80: zona de topo. Abaixo de 20: zona de fundo.','Sinal: %K cruza %D dentro dessas zonas.','Funciona melhor em lateral; é mais nervoso que o RSI.'],
+  calc:'%K = (Fechamento - Mínima14) / (Máxima14 - Mínima14) x 100\n%D = média de 3 períodos do %K',ex:'Máxima 110, mínima 90, fechamento 105 → %K = <b>75</b>. %K: 75, 60, 81 → %D = <b>72</b>.',
+  pit:'Em tendência forte fica grudado em 80 ou em 20.',par:'14 · 3 · 3'},
+ {g:'vola',id:'bb',t:'Bandas de Bollinger',lead:'Envelope em volta da média: abre quando o mercado agita e fecha quando acalma.',
+  how:['<b>Squeeze</b> (bandas apertadas): energia acumulada. Vem movimento, mas as bandas não dizem o lado.','Em lateral: tocar a banda de cima é esticado, a de baixo também, alvo na média.','Em tendência forte o preço "anda na banda": tocar não é sinal de reversão.'],
+  calc:'Meio = SMA(20)\nSuperior e Inferior = Meio ± 2 x desvio padrão (20)\n%B = (Preço - Inferior) / (Superior - Inferior)',ex:'Fechamentos 100, 102, 101, 105, 107 (N = 5): média 103, desvio padrão 2,61 → bandas <b>108,22</b> e <b>97,78</b>. %B do 107 = <b>0,88</b>.',
+  pit:'Vender só porque tocou a banda superior é o erro clássico em tendência.',par:'20 · 2'},
+ {g:'vola',id:'atr',t:'ATR (Average True Range)',lead:'Quanto o preço costuma andar por candle. Não dá direção: serve para stop e tamanho de posição.',
+  how:['ATR alto: stops e alvos mais largos, posição menor.','Stop comum: 1,5 a 3 x ATR a partir da entrada.','ATR muito baixo costuma anteceder volatilidade alta.'],
+  calc:'TR = maior de: (Máx - Mín), |Máx - Fech. anterior|, |Mín - Fech. anterior|\nATR = média de Wilder do TR (14)',ex:'Máx 105, mín 98, fechamento anterior 95 → TR = <b>10</b>. Entrada 100, ATR 4: stop = 100 − 2 x 4 = <b>92</b>. Risco de US$ 100 → tamanho = 100 / 8 = <b>12,5</b> unidades.',
+  pit:'Nunca diz se vai subir ou cair.',par:'14'},
+ {g:'volu',id:'vol',t:'Volume e média de volume',lead:'Quanto foi negociado em cada candle: a convicção por trás do preço.',
+  how:['Preço sobe com volume crescente: alta saudável. Com volume caindo: sem convicção.','Rompimento válido: fechamento além da zona com volume acima da média.','Clímax (volume enorme e pavio depois de movimento longo) indica exaustão. Volume secando numa consolidação é normal.'],
+  calc:'Média de volume = SMA(20) do volume\nRVOL = Volume atual / Média de volume',ex:'Média 1.000 e candle atual 1.800 → RVOL = <b>1,8</b>. Acima de 1,5 é forte; abaixo de 0,7, fraco.',
+  pit:'Em cripto, o volume do gráfico é de uma corretora ou par, não do mercado inteiro.',par:'média de 20'},
+ {g:'volu',id:'vwap',t:'VWAP',lead:'Preço médio do dia ponderado pelo volume: o "preço justo" da sessão. Reinicia todo dia (00:00 UTC em cripto).',
+  how:['Preço acima do VWAP: compradores no controle. Abaixo: vendedores.','Em dia de tendência, serve de suporte/resistência para pullbacks.','Em dia lateral, o preço tende a voltar a ele.'],
+  calc:'Preço típico = (Máx + Mín + Fech) / 3\nVWAP = soma(Preço típico x Vol) / soma(Vol), acumulado na sessão',ex:'Preços típicos 100 (vol 10), 102 (vol 30) e 101 (vol 20) → (1000 + 3060 + 2020) / 60 = <b>101,33</b>. A média simples daria 101.',
+  pit:'Só faz sentido no intradiário; ao longo do dia fica "pesado" e se move pouco.',par:'sessão diária'},
+ {g:'volu',id:'obv',t:'OBV (On-Balance Volume)',lead:'Acumulado de volume: soma nos candles de alta e subtrai nos de baixa.',
+  how:['Preço e OBV subindo juntos: tendência saudável.','Preço faz topo novo e o OBV não: divergência de baixa.','OBV rompendo antes do preço pode antecipar o rompimento.'],
+  calc:'Fechamento > anterior: OBV = OBV + Volume\nFechamento < anterior: OBV = OBV - Volume',ex:'OBV 1.000. Alta com volume 300 → 1.300. Baixa com 500 → 800. Alta com 200 → <b>1.000</b>.',
+  pit:'O volume em cripto é fragmentado: trate como pista, não como prova.',par:'sem parâmetro'}
+];
+function indCard(x,i){
+  var g=GROUPS[x.g],h='';
+  if(i===0||INDS[i-1].g!==x.g)h+='<div class="grp"><i style="background:var(--'+g[2]+')"></i>'+g[0]+' <small>'+g[1]+'</small></div>';
+  return h+'<article class="pn ind" style="border-left-color:var(--'+g[2]+')" id="ind-'+x.id+'"><h3>'+x.t+'</h3><p class="lead">'+x.lead+'</p><div class="chart" data-chart="'+x.id+'"></div><ul>'+lis(x.how)+'</ul><details><summary>Cálculo e exemplo</summary><div><div class="formula">'+x.calc+'</div><p class="ex"><b>Exemplo:</b> '+x.ex+'</p></div></details><p class="pit">'+x.pit+'</p><p class="par">Padrão: '+x.par+'</p></article>';
+}
+function buildInds(){$('#indList').innerHTML=INDS.map(indCard).join('')}
+
+/* ---------- padrões gráficos ---------- */
+/* cores: a=tendência, b=nível, m=neutra, r/s=zona vermelha/verde, t=alvo (verde na alta, vermelho na baixa) */
+var SPECS={
+  tUp:{pts:[[20,165],[70,112],[95,132],[150,72],[175,94],[230,36],[255,58],[305,14]],lines:[[20,165,330,25,'a',1]],
+    labels:[[150,63,'topo mais alto','topo mais baixo','middle'],[230,27,'topo mais alto','topo mais baixo','middle'],[95,150,'fundo mais alto','fundo mais baixo','middle'],[175,112,'fundo mais alto','fundo mais baixo','middle']]},
+  tSide:{pts:[[20,88],[60,58],[100,122],[140,60],[180,120],[220,62],[260,118],[300,64],[340,100]],lines:[[20,58,380,58,'m',1],[20,122,380,122,'m',1]],
+    labels:[[200,162,'sem direção: oscila numa faixa','','middle']]},
+  sr:{pts:[[20,110],[45,146],[85,56],[120,144],[160,54],[195,140],[230,56],[255,34],[280,52],[300,50],[340,20],[380,8]],
+    rects:[[20,44,260,16,'r'],[280,44,100,16,'s'],[20,140,260,16,'s']],
+    labels:[[24,38,'resistência (faixa)','','start'],[24,174,'suporte (faixa)','','start'],[262,26,'rompimento','','start'],[396,80,'reteste: resistência vira suporte','','end']]},
+  srStrong:{pts:[[20,150],[55,52],[90,140],[125,50],[160,146],[195,54],[230,138],[265,51],[300,120],[340,150],[380,132]],
+    rects:[[20,44,360,18,'r']],
+    dots:[[55,52,'1'],[125,50,'2'],[195,54,'3'],[265,51,'4']],
+    labels:[[24,36,'mesma faixa barrou o preço 4 vezes','','start'],[200,182,'muitos toques e timeframe maior: nível forte, respeite','','middle']]},
+  srWeak:{pts:[[20,146],[60,80],[95,134],[130,58],[165,100],[205,42],[245,22],[285,40],[325,16],[365,28]],
+    rects:[[20,52,185,16,'r']],
+    dots:[[130,58,'1']],
+    labels:[[24,44,'um toque só: faixa sem histórico','','start'],[216,86,'rompe fácil','','start'],[200,182,'1 toque ou timeframe pequeno: pouca informação, nível fraco','','middle']]},
+  ltUp:{pts:[[20,170],[60,110],[95,138],[140,80],[172,108],[215,52],[250,78],[300,24],[340,44],[380,14]],
+    lines:[[88,141,252,78,'a'],[252,78,392,24,'a',1]],
+    dots:[[95,138,'1'],[172,108,'2'],[250,78,'3']],
+    labels:[[95,158,'1º fundo','1º topo','middle'],[172,128,'2º fundo: já dá para traçar','2º topo: já dá para traçar','middle'],[252,98,'3º toque: confirma a linha','3º toque: confirma a linha','middle'],[396,177,'a linha vira suporte dinâmico: sobe junto com o preço','a linha vira resistência dinâmica: desce junto com o preço','end']]},
+  ltStrong:{pts:[[20,164],[30,150],[70,96],[110,126],[150,74],[190,101],[230,52],[270,77],[310,30],[350,52],[390,22]],
+    lines:[[26,152,392,40,'a']],
+    dots:[[30,150,'1'],[110,126,'2'],[190,101,'3'],[270,77,'4'],[350,52,'5']],
+    labels:[[200,182,'5 toques, inclinação perto de 30°: dá para confiar e operar o pullback','','middle']]},
+  ltWeak:{pts:[[30,175],[60,112],[85,127],[115,62],[140,78],[168,38],[190,70],[215,110],[250,96],[285,135],[325,120],[370,160]],
+    lines:[[30,175,186,38,'a']],
+    dots:[[85,127,'1'],[140,78,'2']],
+    labels:[[196,22,'inclinação forte demais (acima de 45°)','','start'],[396,66,'só 2 toques e já perdeu a linha','','end'],[200,182,'subida vertical não se sustenta: linha fraca, rompe cedo','','middle']]},
+  ltBreak:{pts:[[20,168],[30,160],[70,104],[110,129],[150,76],[190,98],[225,60],[246,86],[262,118],[290,70],[310,96],[345,140],[380,172]],
+    lines:[[26,162,392,21,'a']],
+    dots:[[30,160,'1'],[110,129,'2'],[190,98,'3'],[262,118,'4','r']],
+    labels:[[262,140,'4: fechou abaixo da linha','','middle'],[24,24,'reteste: volta, encosta na linha por baixo e é rejeitada','','start'],[200,182,'perder a linha é alerta de fim de tendência, não entrada automática','','middle']]},
+  flag:{pts:[[20,150],[100,88],[125,113],[145,97],[165,122],[185,106],[205,130],[225,104],[255,74],[270,82],[320,38]],
+    lines:[[100,88,220,113,'a'],[100,108,220,133,'a']],arrows:[[225,104,225,44]],
+    labels:[[66,152,'mastro','mastro','start'],[112,162,'bandeira: correção em canal','bandeira: repique em canal','start'],[233,124,'rompimento','rompimento','start'],[219,52,'alvo','alvo','end']]},
+  fwedge:{pts:[[30,40],[60,88],[95,63],[125,104],[160,86],[190,120],[215,105],[228,129],[252,104],[268,112],[310,60],[340,48]],
+    lines:[[30,40,235,112,'a'],[30,80,235,131,'a'],[30,40,345,40,'b',1]],arrows:[[252,102,252,48]],
+    labels:[[36,28,'cunha descendente: linhas convergindo para baixo','cunha ascendente: linhas convergindo para cima','start'],[252,150,'rompimento','rompimento','start'],[344,32,'alvo: início da cunha','alvo: início da cunha','end']]},
+  asc:{pts:[[30,150],[55,50],[85,126],[115,50],[145,100],[170,50],[195,78],[215,50],[232,62],[252,40],[265,46],[290,30],[325,20]],
+    lines:[[30,50,250,50,'b'],[30,150,240,58,'a']],arrows:[[352,74,352,14]],
+    labels:[[36,40,'resistência plana (topos iguais)','suporte plano (fundos iguais)','start'],[140,152,'fundos cada vez mais altos','topos cada vez mais baixos','start'],[256,68,'rompimento','rompimento','start'],[346,90,'alvo','alvo','end']]},
+  sym:{pts:[[30,30],[60,153],[95,51],[130,137],[165,73],[195,123],[220,90],[240,112],[262,84],[285,60],[300,68],[340,30]],
+    lines:[[30,30,255,102,'a'],[30,160,255,109,'a']],arrows:[[240,116,290,172,'m']],
+    labels:[[36,20,'topos mais baixos e fundos mais altos','','start'],[396,184,'alternativa: rompe para baixo','','end']]},
+  rect:{pts:[[30,90],[50,50],[85,130],[115,52],[150,130],[185,50],[220,128],[245,52],[262,38],[280,44],[330,16]],
+    lines:[[30,50,270,50,'b'],[30,130,270,130,'b']],
+    labels:[[36,42,'resistência','','start'],[36,148,'suporte','','start'],[268,68,'rompimento','','start'],[200,178,'compre o suporte, venda a resistência ou espere o rompimento','','middle']]},
+  dbl:{pts:[[20,30],[80,150],[140,80],[200,150],[250,84],[280,60],[330,30]],
+    lines:[[60,80,352,80,'b'],[60,150,215,150,'a',1]],arrows:[[347,80,347,14]],
+    labels:[[60,168,'fundo 1','topo 1','start'],[180,168,'fundo 2','topo 2','start'],[150,72,'linha de pescoço','linha de pescoço','start'],[341,58,'alvo','alvo','end']]},
+  hs:{pts:[[20,30],[60,112],[95,66],[150,150],[205,66],[240,114],[275,70],[295,52],[345,20]],
+    lines:[[95,66,320,66,'b']],arrows:[[352,66,352,14]],
+    labels:[[60,130,'ombro esq.','ombro esq.','middle'],[150,168,'cabeça','cabeça','middle'],[240,132,'ombro dir.','ombro dir.','middle'],[102,58,'linha de pescoço','linha de pescoço','start'],[346,90,'alvo','alvo','end']]},
+  cup:{pts:[[30,50],[45,75],[60,96],[80,118],[100,132],[130,140],[160,132],[180,118],[200,96],[215,75],[230,50],[245,64],[262,76],[276,64],[292,44],[340,16]],
+    lines:[[30,50,295,50,'b']],arrows:[[360,50,360,10]],
+    labels:[[130,162,'xícara (fundo arredondado)','','middle'],[262,98,'alça','','middle'],[36,42,'resistência','','start'],[354,34,'alvo','','end']]},
+  chan:{pts:[[20,148],[70,98],[120,126],[170,73],[220,101],[270,48],[320,76],[370,23]],
+    lines:[[20,150,385,59,'a'],[20,110,385,19,'a']],
+    labels:[[24,14,'compra na base, realiza no topo','vende no topo, realiza na base','start'],[380,180,'perda da base = alerta de reversão','perda do topo = alerta de reversão','end']]}
+};
+var uid=0;
+function patSVG(sp,mir,title){
+  var H=190,n=++uid,C={a:'var(--c2)',b:'var(--c1)',m:'var(--muted)',r:'var(--down)',s:'var(--up)',t:mir?'var(--down)':'var(--up)'};
+  function fy(y){return mir?H-y:y}
+  var s='<svg class="anim" viewBox="0 0 400 190" role="img" aria-label="'+title+'"><defs>';
+  ['t','m'].forEach(function(k){s+='<marker id="ar'+n+k+'" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" style="fill:'+C[k]+'"/></marker>'});
+  s+='</defs>';
+  (sp.rects||[]).forEach(function(r){s+='<rect x="'+r[0]+'" y="'+(mir?H-r[1]-r[3]:r[1])+'" width="'+r[2]+'" height="'+r[3]+'" style="fill:'+C[r[4]]+';fill-opacity:.2"/>'});
+  (sp.lines||[]).forEach(function(l){s+='<line class="late" x1="'+l[0]+'" y1="'+fy(l[1])+'" x2="'+l[2]+'" y2="'+fy(l[3])+'" style="stroke:'+C[l[4]]+';stroke-width:1.3'+(l[5]?';stroke-dasharray:4 3':'')+'"/>'});
+  s+='<polyline class="pr" pathLength="1" points="'+sp.pts.map(function(p){return p[0]+','+fy(p[1])}).join(' ')+'" style="fill:none;stroke:var(--text);stroke-width:2;stroke-linejoin:round;stroke-linecap:round"/>';
+  (sp.arrows||[]).forEach(function(a){var k=a[4]||'t';s+='<line class="late" x1="'+a[0]+'" y1="'+fy(a[1])+'" x2="'+a[2]+'" y2="'+fy(a[3])+'" marker-end="url(#ar'+n+k+')" style="stroke:'+C[k]+';stroke-width:2;stroke-dasharray:5 3"/>'});
+  (sp.dots||[]).forEach(function(d){
+    var k=d[3]||'b',cy=fy(d[1]);
+    s+='<g class="late"><circle cx="'+d[0]+'" cy="'+cy+'" r="7.5" style="fill:var(--surface);stroke:'+C[k]+';stroke-width:1.6"/>'+
+       '<text x="'+d[0]+'" y="'+(cy+3.4)+'" text-anchor="middle" style="font:500 9.5px var(--mono);fill:'+C[k]+'">'+d[2]+'</text></g>';
+  });
+  (sp.labels||[]).forEach(function(l){
+    var t=mir?l[3]:l[2];if(!t)return;
+    var em=(t==='alvo'||t.indexOf('rompimento')===0||t.indexOf('alvo:')===0);
+    s+='<text class="late" x="'+l[0]+'" y="'+fy(l[1])+'" text-anchor="'+l[4]+'" style="font:'+(em?'600 ':'')+'10px var(--sans);fill:'+(em?C.t:'var(--muted)')+'">'+t+'</text>';
+  });
+  return s+'</svg>';
+}
+var io=('IntersectionObserver' in window)?new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('go');io.unobserve(e.target)}})},{threshold:.35}):null;
+function regAnim(svg){if(io)io.observe(svg);else svg.classList.add('go')}
+function mountFig(el,key,mir,title,now){
+  el.innerHTML=patSVG(SPECS[key],mir,title);
+  var svg=el.querySelector('svg');
+  if(now)requestAnimationFrame(function(){svg.classList.add('go')});else regAnim(svg);
+}
+
+var PATS=[
+ {t:'Bandeira e flâmula',kind:'Continuação',lead:'Pausa curta contra a tendência depois de um movimento explosivo (o mastro). Na flâmula a pausa é um triângulo pequeno em vez de um canal.',
+  figs:[['flag',0,'Bandeira de alta'],['flag',1,'Bandeira de baixa']],
+  draw:['Marque o mastro (movimento forte e quase vertical). Ligue topos e fundos da pausa com duas linhas <b>paralelas</b> inclinadas contra a tendência.','A pausa dura de 5 a 20 candles e devolve no máximo 38% a 50% do mastro.'],
+  read:['Rompimento a favor do mastro: a tendência continua (para cima na de alta, para baixo na de baixa).'],
+  entry:'Fechamento além da linha, ou reteste dela.',stop:'Do outro lado da bandeira.',target:'Altura do mastro projetada do rompimento.',vol:'Alto no mastro, cai na pausa, sobe no rompimento.',
+  pit:'Bandeira longa ou funda demais perde força. Rompimento sem volume costuma ser falso.'},
+ {t:'Cunha (wedge)',kind:'Reversão ou continuação',lead:'Duas linhas inclinadas para o mesmo lado e convergindo: o movimento perde força.',
+  figs:[['fwedge',0,'Cunha descendente (viés de alta)'],['fwedge',1,'Cunha ascendente (viés de baixa)']],
+  draw:['Ligue os topos e os fundos: as linhas se aproximam. Precisa de 2 toques em cada.'],
+  read:['<b>Descendente:</b> vendedores se esgotam e rompe para cima (<span class="good">alta</span>).','<b>Ascendente:</b> compradores se esgotam e rompe para baixo (<span class="bad">baixa</span>).'],
+  entry:'Fechamento além da linha oposta à inclinação.',stop:'Além do último extremo dentro da cunha.',target:'Volta ao início da cunha (linha tracejada).',vol:'Diminui na formação, sobe no rompimento.',
+  pit:'Quebras falsas são comuns. Espere o fechamento.'},
+ {t:'Triângulos ascendente e descendente',kind:'Continuação',lead:'Uma linha horizontal (onde o preço bate) e outra que se aproxima: pressão crescente.',
+  figs:[['asc',0,'Ascendente (viés de alta)'],['asc',1,'Descendente (viés de baixa)']],
+  draw:['<b>Ascendente:</b> topos iguais e fundos mais altos. <b>Descendente:</b> fundos iguais e topos mais baixos. 2 toques por linha.'],
+  read:['Ascendente: compradores atacam a mesma resistência até vencê-la.','Descendente: vendedores quebram o mesmo suporte.'],
+  entry:'Fechamento além da linha horizontal, com volume.',stop:'Do lado oposto do triângulo.',target:'Altura da parte mais larga.',vol:'Cai na formação, sobe no rompimento.',
+  pit:'O rompimento contrário acontece: deixe o stop do outro lado.'},
+ {t:'Triângulo simétrico e retângulo',kind:'Neutros',lead:'Padrões de indecisão: o mercado comprime ou lateraliza até escolher um lado.',
+  figs:[['sym',0,'Triângulo simétrico'],['rect',0,'Retângulo']],
+  draw:['<b>Simétrico:</b> topos mais baixos e fundos mais altos convergindo. O rompimento mais confiável sai entre 2/3 e 3/4 do caminho até o vértice.','<b>Retângulo:</b> suporte e resistência horizontais com 2 toques ou mais em cada.'],
+  read:['Não escolha o lado antes: espere o fechamento fora.','No retângulo dá para operar o range (Bollinger e RSI) até o rompimento.'],
+  entry:'Fechamento fora da formação, com volume.',stop:'Dentro da formação.',target:'Altura da formação.',vol:'Baixo dentro, alto no rompimento.',
+  pit:'Fakeouts (pavio que fura e volta) são comuns. Perto do vértice o sinal é fraco.'},
+ {t:'Fundo duplo e topo duplo',kind:'Reversão',lead:'Duas tentativas fracassadas de romper o mesmo nível: forma de W (fundo) ou de M (topo).',
+  figs:[['dbl',0,'Fundo duplo (reversão de alta)'],['dbl',1,'Topo duplo (reversão de baixa)']],
+  draw:['Marque os dois extremos na mesma altura e trace a <b>linha de pescoço</b> no extremo oposto entre eles. Exige tendência prévia.'],
+  read:['O 2º teste falhou: a força acabou. Só vale quando o preço <b>fecha além da linha de pescoço</b>.'],
+  entry:'Fechamento além da linha de pescoço (ou reteste).',stop:'Além do 2º extremo.',target:'Distância do extremo até a linha de pescoço, projetada.',vol:'2º extremo com menos volume; rompimento com volume.',
+  pit:'Entrar antes do rompimento da linha de pescoço é apostar, não operar o padrão.'},
+ {t:'Ombro-cabeça-ombro (OCO)',kind:'Reversão',lead:'Três extremos; a cabeça (do meio) vai mais longe. Cada tentativa de continuar foi mais fraca. Aqui OCO é o padrão, não a ordem.',
+  figs:[['hs',0,'OCO invertido (reversão de alta)'],['hs',1,'OCO (reversão de baixa)']],
+  draw:['<b>OCO:</b> ombro, cabeça mais alta, ombro. Ligue os dois vales: é a linha de pescoço (pode ser inclinada). <b>Invertido:</b> de cabeça para baixo.'],
+  read:['A confirmação é o fechamento além da linha de pescoço.'],
+  entry:'Fechamento além da linha de pescoço (ou reteste).',stop:'Além do ombro direito.',target:'Altura da cabeça até a linha de pescoço, projetada.',vol:'Menor na cabeça e no ombro direito, sobe no rompimento.',
+  pit:'É subjetivo: muita gente vê OCO onde não há. Exige tendência prévia.'},
+ {t:'Xícara com alça',kind:'Continuação de alta',lead:'Fundo arredondado seguido de uma pequena correção (a alça) antes de romper a resistência.',
+  figs:[['cup',0,'Xícara com alça']],
+  draw:['Resistência horizontal ligando as duas bordas. Fundo em U (não em V). A alça devolve no máximo 1/3 a 1/2 da xícara.'],
+  read:['Vendedores absorvidos: romper a resistência sinaliza retomada da alta.'],
+  entry:'Fechamento acima da resistência.',stop:'Abaixo da mínima da alça.',target:'Profundidade da xícara, projetada.',vol:'Seca no fundo, explode no rompimento.',
+  pit:'Alça funda invalida o padrão. Melhor em timeframes maiores.'},
+ {t:'Canal',kind:'Tendência',lead:'Duas linhas paralelas contendo o preço.',
+  figs:[['chan',0,'Canal de alta'],['chan',1,'Canal de baixa']],
+  draw:['Ligue 2 fundos (canal de alta) ou 2 topos (baixa) e trace a paralela pelo extremo oposto. Precisa de 3 toques.'],
+  read:['Opere a favor: compre perto da base (alta) e realize no topo.','Perder a base do canal de alta é alerta de reversão.'],
+  entry:'Pullback até a linha de tendência com candle de rejeição.',stop:'Além da linha e do último extremo.',target:'Linha oposta do canal.',vol:'Sobe nos impulsos, cai nas correções.',
+  pit:'Linha forçada não vale. Em prazos longos, use escala log.'}
+];
+function patCard(p){
+  return '<article class="pn"><h3>'+p.t+'</h3><p class="cap" style="margin:0 0 6px">'+p.kind+'</p><p class="lead">'+p.lead+'</p>'+
+   '<div class="pgrid'+(p.figs.length>1?' two':'')+'">'+p.figs.map(function(f,i){return '<figure class="pfig" data-f="'+f[0]+'|'+f[1]+'|'+f[2]+'"></figure>'}).join('')+'</div>'+
+   '<p class="kh">Desenhar</p><ul>'+lis(p.draw)+'</ul><p class="kh">Interpretar</p><ul>'+lis(p.read)+'</ul>'+
+   '<div class="kv"><b>Entrada</b><span>'+p.entry+'</span><b>Stop</b><span>'+p.stop+'</span><b>Alvo</b><span>'+p.target+'</span><b>Volume</b><span>'+p.vol+'</span></div>'+
+   '<p class="pit">'+p.pit+'</p></article>';
+}
+function buildPats(){
+  $('#patList').innerHTML=PATS.map(patCard).join('');
+  $$('#patList figure').forEach(function(fg){
+    var a=fg.getAttribute('data-f').split('|');
+    fg.innerHTML='<div></div><figcaption>'+a[2]+'</figcaption>';
+    mountFig(fg.firstChild,a[0],a[1]==='1',a[2]);
+  });
+}
+
+/* ---------- setups ---------- */
+var SETUPS=[
+ {t:'Pullback na EMA 21 a favor da tendência',chart:'sPull',ctx:'EMA 21 acima da SMA 50, ambas subindo, e ADX acima de 20. Para vendas, o inverso.',
+  trig:['O preço recua até a EMA 21 ou a SMA 50 (ou 38% a 50% de Fibonacci).','O RSI volta para 40 a 50 e vira para cima.','Aparece candle de rejeição. Entrada na máxima dele.'],
+  stop:'Abaixo da mínima do pullback (ou 1,5 x ATR).',target:'Topo anterior. Parcial em 1:1 e o resto em 1:2 ou mais, com trailing na EMA 21.',
+  avoid:'ADX abaixo de 20. Pullback que perde a SMA 50 com volume alto. Sem espaço até a resistência.'},
+ {t:'Squeeze de Bollinger e rompimento',chart:'sSqz',ctx:'Largura das bandas (painel de baixo) na mínima dos últimos 50 a 100 candles.',
+  trig:['Um candle fecha fora da banda.','Volume acima de 1,5 x a média.','RSI acima de 50 (compra). Entrada no fechamento ou no reteste da banda central.'],
+  stop:'Na banda central ou no extremo da compressão.',target:'Largura da compressão projetada, ou trailing pela banda central.',
+  avoid:'Rompimento sem volume. Entrada esticada longe da banda central. Notícia forte no meio da compressão.'},
+ {t:'Reversão à média em mercado lateral',chart:'sRev',ctx:'ADX abaixo de 20, com suporte e resistência claros.',
+  trig:['O preço fura a banda inferior sobre um suporte.','RSI abaixo de 30 (ou Estocástico abaixo de 20) virando para cima.','Candle de rejeição. Entrada na máxima dele.'],
+  stop:'Abaixo do suporte.',target:'Banda central; depois a banda superior.',
+  avoid:'ADX subindo acima de 25: a lateralidade acabou.'},
+ {t:'Reteste do VWAP no intradiário',chart:'sVwap',ctx:'Timeframe de 5 a 15 min. Preço acima do VWAP desde a abertura (00:00 UTC) e EMA 9 acima da 21.',
+  trig:['Recuo até o VWAP com volume caindo.','Candle de rejeição no VWAP. Entrada na máxima dele. Venda: o espelho.'],
+  stop:'Abaixo do VWAP.',target:'Máxima da sessão.',
+  avoid:'Dia lateral (cruza o VWAP várias vezes). VWAP perdido com volume alto.'},
+ {t:'Divergência em nível chave',chart:'rsi',ctx:'Resistência (ou suporte) de timeframe maior, depois de um movimento longo.',
+  trig:['O preço faz topo maior e o RSI (ou MACD) faz topo menor.','Candle de rejeição no nível. Entrada quando o preço perde a mínima dele.'],
+  stop:'Acima do topo.',target:'EMA 50, ou 38% a 50% do movimento. Mínimo de 1:2.',
+  avoid:'Tendência forte (ADX alto e subindo). Divergência sem nível nem candle.'},
+ {t:'Rompimento de padrão com reteste',chart:null,ctx:'Padrão claro (bandeira, triângulo, retângulo, OCO) em timeframe maior.',
+  trig:['Fechamento além da linha do padrão com volume.','Esperar o reteste da linha rompida. Entrada com candle de rejeição.'],
+  stop:'Dentro do padrão.',target:'Altura do padrão. Parcial em 1:1.',
+  avoid:'Sem volume e sem reteste. Fechamento de volta dentro do padrão.'}
+];
+function setupCard(s){
+  return '<article class="pn"><h3>'+s.t+'</h3>'+(s.chart?'<div class="chart" data-chart="'+s.chart+'"></div>':'')+
+   '<p class="kh">Contexto</p><p style="margin:0">'+s.ctx+'</p><p class="kh">Gatilho</p><ol style="margin:0 0 .4em">'+lis(s.trig)+'</ol>'+
+   '<div class="kv"><b>Stop</b><span>'+s.stop+'</span><b>Alvo</b><span>'+s.target+'</span></div><p class="pit"><b>Evite:</b> '+s.avoid+'</p></article>';
+}
+function buildSetups(){$('#setupList').innerHTML=SETUPS.map(setupCard).join('')}
+
+/* ---------- figuras da base ---------- */
+var TR={up:['tUp',false,'Tendência de alta'],down:['tUp',true,'Tendência de baixa'],side:['tSide',false,'Mercado lateral']};
+var LT={up:['ltUp',false,'Linha de tendência de alta'],down:['ltUp',true,'Linha de tendência de baixa'],
+  strong:['ltStrong',false,'Linha de tendência forte'],weak:['ltWeak',false,'Linha de tendência fraca'],brk:['ltBreak',false,'Linha de tendência rompida']};
+var SR={band:['sr',false,'Suporte e resistência'],strong:['srStrong',false,'Resistência forte'],weak:['srWeak',false,'Resistência fraca']};
+function segFig(tabs,fig,map,dflt){
+  var el=$(fig);
+  mountFig(el,map[dflt][0],map[dflt][1],map[dflt][2]);
+  $$(tabs+' button').forEach(function(b){b.addEventListener('click',function(){
+    $$(tabs+' button').forEach(function(x){x.classList.remove('on')});b.classList.add('on');
+    var t=map[b.getAttribute('data-k')];mountFig(el,t[0],t[1],t[2],true);
+  })});
+}
+function replayFig(btn,fig){
+  $(btn).addEventListener('click',function(){var s=$(fig+' svg');s.classList.remove('go');void s.getBoundingClientRect();s.classList.add('go')});
+}
+function initFigs(){
+  segFig('#trendTabs','#trendFig',TR,'up');
+  segFig('#ltTabs','#ltFig',LT,'up');
+  replayFig('#ltReplay','#ltFig');
+  segFig('#srTabs','#srFig',SR,'band');
+  replayFig('#srReplay','#srFig');
+}
+
+/* ---------- fractalidade e timeframes ---------- */
+var RM=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+var FR={n:2048,o:[],h:[],l:[],c:[],t:1100,k:0,view:'one',tr:null,tour:false,ti:0,hold:0,play:!RM,speed:1,acc:0,last:0,vis:false,raf:0};
+var FTF=[[60,'1h','cada vela = 60 min (4 de 15m)'],[15,'15m','cada vela = 15 min (3 de 5m)'],[5,'5m','cada vela = 5 min (5 de 1m)'],[1,'1m','cada vela = 1 min']];
+var ROLE=['<b>1h · contexto.</b> Tendência do dia e grandes níveis. É daqui que o day trader tira a direção.',
+  '<b>15m · estrutura.</b> Pullbacks, padrões e a organização do dia. Ótimo para planejar.',
+  '<b>5m · entrada.</b> O timeframe principal do day trade: setup, gatilho e gestão da operação.',
+  '<b>1m · refino.</b> Entrada e stop mais precisos, mas com muito ruído. Nunca opere o 1m sem olhar o contexto maior.'];
+var TOUR=[0,1,2,3,2,1];
+
+function buildLadder(){
+  var rows=[[1,'1h','Contexto','tendência e níveis',0],[4,'15m','Estrutura','pullbacks e padrões',0],[12,'5m','Entrada','setup e gatilho',1],[60,'1m','Refino','gatilho e stop precisos',1]];
+  var x0=48,w=202,s='<svg viewBox="0 0 400 244" role="img" aria-label="Escada de timeframes: cada vela contém as de baixo, e o day trade acontece entre 5m e 1m">';
+  s+='<text x="8" y="16" style="font:9.5px var(--sans);fill:var(--muted)">▲ 4h, 1D, 1W: swing trade e visão macro</text>';
+  s+='<rect x="4" y="118" width="392" height="92" rx="8" style="fill:var(--accent);fill-opacity:.1;stroke:var(--accent);stroke-width:1;stroke-dasharray:4 3"/>';
+  s+='<text x="392" y="130" text-anchor="end" style="font:600 9px var(--sans);fill:var(--accent)">DAY TRADE: 5m a 1m</text>';
+  s+='<line x1="'+x0+'" x2="'+x0+'" y1="64" y2="202" style="stroke:var(--muted);stroke-width:.6;stroke-dasharray:2 3"/><line x1="'+(x0+w)+'" x2="'+(x0+w)+'" y1="64" y2="202" style="stroke:var(--muted);stroke-width:.6;stroke-dasharray:2 3"/>';
+  rows.forEach(function(r,i){
+    var y=34+i*46,n=r[0],bw=w/n,g=n>20?.5:1.6,col=r[4]?'var(--accent)':'var(--c2)';
+    for(var j=0;j<n;j++)s+='<rect x="'+(x0+j*bw+g/2).toFixed(2)+'" y="'+y+'" width="'+(bw-g).toFixed(2)+'" height="30" rx="'+(n>20?0.5:3)+'" style="fill:'+col+';fill-opacity:'+(j%2?.62:.38)+'"/>';
+    if(i===0)s+='<text x="'+(x0+w/2)+'" y="'+(y+19)+'" text-anchor="middle" style="font:600 10px var(--sans);fill:var(--text)">1 vela de 1h</text>';
+    s+='<text x="8" y="'+(y+19)+'" style="font:600 12px var(--mono);fill:var(--text)">'+r[1]+'</text>';
+    s+='<text x="258" y="'+(y+13)+'" style="font:600 10.5px var(--sans);fill:var(--text)">'+r[2]+'</text><text x="258" y="'+(y+25)+'" style="font:9.5px var(--sans);fill:var(--muted)">'+r[3]+'</text>';
+  });
+  s+='<text x="200" y="232" text-anchor="middle" style="font:600 10.5px var(--sans);fill:var(--text)">1 vela de 1h = 4 de 15m = 12 de 5m = 60 de 1m</text></svg>';
+  $('#tfLadder').innerHTML=s;
+}
+
+function frGen(sd){
+  var r=mulberry32(sd);
+  function g(){var u=0,v=0;while(!u)u=r();while(!v)v=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+  var n=FR.n,a=new Float64Array(n+1),step=n,s=3.2,H=.58,i;
+  a[0]=0;a[n]=g()*4;
+  while(step>1){var half=step/2;for(i=half;i<n;i+=step)a[i]=(a[i-half]+a[i+half])/2+g()*s;step=half;s*=Math.pow(2,-H)}
+  function P(x){return 65000*Math.exp(x/100)}
+  FR.o=[];FR.h=[];FR.l=[];FR.c=[];
+  for(i=1;i<=n;i++){
+    var o=P(a[i-1]),c=P(a[i]);
+    FR.o.push(o);FR.c.push(c);
+    FR.h.push(Math.max(o,c)+c*0.00022*Math.abs(g()));
+    FR.l.push(Math.min(o,c)-c*0.00022*Math.abs(g()));
+  }
+}
+function frPanel(k,o){
+  o=o||{};
+  var m=FTF[k][0],NC=16,t=FR.t,bEnd=Math.floor(t/m),bS=bEnd-NC+1,W=400,H=o.big?230:112,ml=6,mr=46,pw=W-ml-mr,top=o.big?26:18,bot=8,cs=[],lo=1e18,hi=-1e18,i,b;
+  for(b=bS;b<=bEnd;b++){
+    var s=b*m,e=Math.min(t,s+m-1),h=-1e18,l=1e18;
+    for(i=s;i<=e;i++){if(FR.h[i]>h)h=FR.h[i];if(FR.l[i]<l)l=FR.l[i]}
+    cs.push({o:FR.o[s],c:FR.c[e],h:h,l:l});if(h>hi)hi=h;if(l<lo)lo=l;
+  }
+  var pad=(hi-lo)*.1;lo-=pad;hi+=pad;
+  function Y(v){return top+(hi-v)/(hi-lo)*(H-top-bot)}
+  function X(u){return ml+u/NC*pw}
+  var st=o.ov?' style="position:absolute;left:0;top:0;opacity:'+o.opacity.toFixed(3)+'"':'';
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Gráfico de '+FTF[k][1]+'"'+st+'>';
+  svg+='<text x="8" y="'+(o.big?16:12)+'" style="font:600 '+(o.big?14:12)+'px var(--sans);fill:var(--accent)">'+FTF[k][1]+'</text><text x="'+(o.big?40:36)+'" y="'+(o.big?16:12)+'" style="font:10px var(--sans);fill:var(--muted)">'+FTF[k][2]+'</text>';
+  if(k<3){
+    var m2=FTF[k+1][0],bS2=Math.floor(t/m2)-NC+1,x1=X(bS2*m2/m-bS),x2=X((t+1)/m-bS),z=o.zoom||0;
+    x1=x1+(ml-x1)*z;x2=x2+(ml+pw-x2)*z;
+    svg+='<rect x="'+x1.toFixed(1)+'" y="'+top+'" width="'+(x2-x1).toFixed(1)+'" height="'+(H-top-bot)+'" style="fill:var(--accent);fill-opacity:'+(.1+.06*z).toFixed(3)+';stroke:var(--accent);stroke-width:1;stroke-dasharray:3 2"/>';
+    if(o.big&&z<.2)svg+='<text x="'+(x1+4).toFixed(1)+'" y="'+(top+11)+'" style="font:600 9.5px var(--sans);fill:var(--accent)">zoom: '+FTF[k+1][1]+'</text>';
+  }
+  var cw=pw/NC,bw=cw*.6,em=cs[0].c,d='';
+  cs.forEach(function(c,j){
+    var x=X(j+.5),col=c.c>=c.o?'var(--up)':'var(--down)',yo=Y(c.o),yc=Y(c.c);
+    svg+='<line x1="'+x.toFixed(1)+'" x2="'+x.toFixed(1)+'" y1="'+Y(c.h).toFixed(1)+'" y2="'+Y(c.l).toFixed(1)+'" style="stroke:'+col+';stroke-width:1.2"/>';
+    svg+='<rect x="'+(x-bw/2).toFixed(1)+'" y="'+Math.min(yo,yc).toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+Math.max(1.2,Math.abs(yo-yc)).toFixed(1)+'" style="fill:'+col+'"/>';
+    em=em+(c.c-em)*.33;d+=(j?'L':'M')+x.toFixed(1)+' '+Y(em).toFixed(1);
+  });
+  svg+='<path d="'+d+'" style="fill:none;stroke:var(--c3);stroke-width:1.4"/>';
+  var last=cs[cs.length-1].c,ly=Y(last).toFixed(1);
+  svg+='<line x1="'+ml+'" x2="'+(W-mr)+'" y1="'+ly+'" y2="'+ly+'" style="stroke:var(--muted);stroke-width:.8;stroke-dasharray:3 3"/>';
+  svg+='<text x="'+(W-mr+3)+'" y="'+(+ly+3)+'" style="font:9px var(--mono);fill:var(--text)">'+fmt(last)+'</text>';
+  return svg+'</svg>';
+}
+function ease(p){return p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2}
+function frDraw(){
+  var html,cap;
+  if(FR.view==='all'){
+    html=FTF.map(function(x,i){return frPanel(i,{})}).join('');
+    cap='Os quatro gráficos mostram o mesmo trecho. O retângulo de cada um é exatamente o que aparece no gráfico de baixo.';
+  }else if(FR.tr){
+    var tr=FR.tr,zin=tr.to>tr.from,hi=zin?tr.from:tr.to,lo=zin?tr.to:tr.from,p=ease(Math.min(tr.p,1)),z=zin?p:1-p,q=Math.max(0,Math.min(1,(z-.45)/.55));
+    q=q*q*(3-2*q);
+    html='<div class="frs">'+frPanel(hi,{big:1,zoom:z})+frPanel(lo,{big:1,ov:1,opacity:q})+'</div>';
+    cap=ROLE[tr.to];
+  }else{
+    html='<div class="frs">'+frPanel(FR.k,{big:1})+'</div>';
+    cap=ROLE[FR.k];
+  }
+  $('#frCharts').innerHTML=html;
+  $('#frCap').innerHTML=cap;
+  var t=FR.t;
+  $('#frClock').textContent='dia '+(1+Math.floor(t/1440))+' · '+String(Math.floor(t/60)%24).padStart(2,'0')+':'+String(t%60).padStart(2,'0');
+}
+function frTab(k){$$('#frTabs button').forEach(function(b){b.classList.toggle('on',+b.getAttribute('data-k')===k)})}
+function frTourBtn(){$('#frTour').textContent=FR.tour?'Parar zoom automático':'Zoom automático'}
+function frGo(to){
+  if(to===FR.k&&!FR.tr)return;
+  frTab(to);
+  if(FR.view==='one'&&!FR.tr&&Math.abs(to-FR.k)===1){FR.tr={from:FR.k,to:to,p:0};frKick()}
+  else{FR.tr=null;FR.k=to;frDraw()}
+}
+function frLoop(ts){
+  FR.raf=0;
+  if(!FR.vis||!(FR.play||FR.tour||FR.tr))return;
+  if(!FR.last)FR.last=ts;
+  var dt=Math.min(ts-FR.last,100),dirty=false;FR.last=ts;
+  if(FR.play){
+    FR.acc+=dt*FR.speed;var step=1000/6;
+    while(FR.acc>=step){FR.acc-=step;FR.t++;if(FR.t>=FR.n)FR.t=960;dirty=true}
+    if(dirty)$('#frSlider').value=FR.t;
+  }
+  if(FR.tr){
+    FR.tr.p+=dt/(RM?1:950);dirty=true;
+    if(FR.tr.p>=1){FR.k=FR.tr.to;FR.tr=null;FR.hold=0}
+  }else if(FR.tour){
+    FR.hold+=dt;
+    if(FR.hold>2600){FR.hold=0;FR.ti=(FR.ti+1)%TOUR.length;frGo(TOUR[FR.ti])}
+  }
+  if(dirty)frDraw();
+  FR.raf=requestAnimationFrame(frLoop);
+}
+function frKick(){if((FR.play||FR.tour||FR.tr)&&FR.vis&&!FR.raf){FR.last=0;FR.raf=requestAnimationFrame(frLoop)}}
+function frInit(){
+  buildLadder();
+  frGen(20260930);
+  var sl=$('#frSlider');sl.min=960;sl.max=FR.n-1;sl.value=FR.t;
+  sl.addEventListener('input',function(){FR.t=+sl.value;frDraw()});
+  var pb=$('#frPlay');pb.textContent=FR.play?'Pausar':'Reproduzir';
+  pb.addEventListener('click',function(){FR.play=!FR.play;pb.textContent=FR.play?'Pausar':'Reproduzir';frKick()});
+  $$('#frSpeed button').forEach(function(b){b.addEventListener('click',function(){
+    $$('#frSpeed button').forEach(function(x){x.classList.remove('on')});b.classList.add('on');FR.speed=+b.getAttribute('data-s');
+  })});
+  $$('#frTabs button').forEach(function(b){b.addEventListener('click',function(){FR.tour=false;frTourBtn();frGo(+b.getAttribute('data-k'))})});
+  $$('#frView button').forEach(function(b){b.addEventListener('click',function(){
+    FR.view=b.getAttribute('data-v');$('#fractal').setAttribute('data-v',FR.view);
+    $$('#frView button').forEach(function(x){x.classList.toggle('on',x===b)});
+    if(FR.view==='all'){FR.tour=false;frTourBtn();FR.tr=null}
+    frDraw();
+  })});
+  $('#frTour').addEventListener('click',function(){
+    FR.tour=!FR.tour;
+    if(FR.tour){
+      if(FR.view==='all')$('#frView button[data-v="one"]').click();
+      FR.k=0;FR.tr=null;FR.ti=0;FR.hold=0;frTab(0);frDraw();
+    }
+    frTourBtn();frKick();
+  });
+  $('#frNew').addEventListener('click',function(){frGen(Math.floor(Math.random()*1e9)+1);frDraw()});
+  frDraw();
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(es){FR.vis=es[0].isIntersecting;frKick()},{threshold:0}).observe($('#frCharts'));
+  }else{FR.vis=true;frKick()}
+}
+
+/* ---------- DOM ---------- */
+var ASK=[[65010,.8],[65020,1.5],[65030,2.2],[65040,1.1],[65050,3.4],[65060,2.0],[65070,4.5]];
+var BID=[[65000,1.2],[64990,2.5],[64980,1.8],[64970,3.1],[64960,2.4],[64950,5.0],[64940,3.6]];
+var side='buy',qty=3;
+function q(v){return v.toLocaleString('pt-BR',{maximumFractionDigits:2})}
+function domRender(){
+  var book=side==='buy'?ASK:BID,rem=qty,cost=0,taken={},i;
+  for(i=0;i<book.length&&rem>1e-9;i++){var t=Math.min(rem,book[i][1]);taken[book[i][0]]=t;cost+=book[i][0]*t;rem-=t}
+  var filled=qty-rem,avg=filled>0?cost/filled:0,best=book[0][0];
+  var mx=5,html='';
+  function row(p,sz,cls){
+    var hit=taken[p]!=null;
+    return '<div class="row '+cls+(hit?' hit':'')+'"><i style="width:'+(sz/mx*100)+'%"></i><span class="p">'+fmt(p)+'</span><span>'+q(sz)+(hit?'  (consumido: '+q(taken[p])+')':'')+'</span></div>';
+  }
+  for(i=ASK.length-1;i>=0;i--)html+=row(ASK[i][0],ASK[i][1],'ask');
+  html+='<div class="spread">Spread: '+(ASK[0][0]-BID[0][0])+' ('+((ASK[0][0]-BID[0][0])/BID[0][0]*100).toFixed(3).replace('.',',')+'%)</div>';
+  for(i=0;i<BID.length;i++)html+=row(BID[i][0],BID[i][1],'bid');
+  $('#domBox').innerHTML=html;
+  $('#qtyOut').textContent=q(qty)+' BTC';
+  var slip=Math.abs(avg-best),pct=best?slip/best*100:0;
+  var msg='Ordem a mercado de <b>'+(side==='buy'?'compra':'venda')+'</b> de <b>'+q(qty)+' BTC</b>: preço médio <b class="mono">'+avg.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'</b> contra o melhor preço de <b class="mono">'+fmt(best)+'</b>. Slippage: <b class="mono">'+slip.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'</b> por BTC ('+pct.toFixed(3).replace('.',',')+'%).';
+  if(rem>1e-9)msg+=' <b>Livro raso:</b> sobraram '+q(rem)+' BTC sem executar.';
+  else if(Object.keys(taken).length===1)msg+=' A ordem coube no primeiro nível: sem slippage.';
+  $('#domSum').innerHTML=msg;
+}
+$('#sideBuy').addEventListener('click',function(){side='buy';this.classList.add('on');$('#sideSell').classList.remove('on');domRender()});
+$('#sideSell').addEventListener('click',function(){side='sell';this.classList.add('on');$('#sideBuy').classList.remove('on');domRender()});
+$('#qty').addEventListener('input',function(){qty=parseFloat(this.value);domRender()});
+
+/* ---------- calculadora de risco ---------- */
+function num(id){return parseFloat(String($(id).value).replace(',','.'))}
+function money(v){return v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function calc(){
+  var cap=num('#rCap'),rk=num('#rRisk'),en=num('#rEntry'),st=num('#rStop'),tg=num('#rTarget'),lv=num('#rLev');
+  var out=$('#rOut'),msg=$('#rMsg');msg.style.display='none';
+  if(!(cap>0&&rk>0&&en>0&&st>0&&tg>0&&lv>0)||en===st){out.innerHTML='<div style="grid-column:1/-1">Preencha todos os campos com valores maiores que zero (entrada diferente do stop).</div>';return}
+  var long=st<en,risk=cap*rk/100,dist=Math.abs(en-st),size=risk/dist,notional=size*en,margin=notional/lv;
+  var rr=Math.abs(tg-en)/dist,gain=size*Math.abs(tg-en);
+  var liq=long?en*(1-1/lv):en*(1+1/lv);
+  var okT=long?tg>en:tg<en;
+  out.innerHTML=
+    '<div><small>Direção</small><b>'+(long?'Compra (long)':'Venda (short)')+'</b></div>'+
+    '<div><small>Risco em US$</small><b>'+money(risk)+'</b></div>'+
+    '<div><small>Distância até o stop</small><b>'+(dist/en*100).toFixed(2).replace('.',',')+'%</b></div>'+
+    '<div><small>Tamanho da posição</small><b>'+size.toLocaleString('pt-BR',{maximumFractionDigits:4})+' unid.</b></div>'+
+    '<div><small>Valor da posição</small><b>'+money(notional)+'</b></div>'+
+    '<div><small>Margem necessária ('+lv+'x)</small><b>'+money(margin)+'</b></div>'+
+    '<div><small>Relação risco/retorno</small><b>1 : '+rr.toFixed(2).replace('.',',')+'</b></div>'+
+    '<div><small>Lucro se atingir o alvo</small><b>'+money(gain)+'</b></div>';
+  var w=[];
+  if(!okT)w.push('O alvo está do lado errado da entrada para essa direção.');
+  if(margin>cap)w.push('A margem necessária é maior que o seu capital: reduza o tamanho, o risco ou aumente a alavancagem (com cuidado).');
+  if(long?liq>=st:liq<=st)w.push('Atenção: a liquidação aproximada ('+fmt(liq)+') fica antes do stop. Você seria liquidado antes de o stop atuar. Reduza a alavancagem.');
+  if(rr<1.5&&okT)w.push('Risco/retorno abaixo de 1:1,5. Exige taxa de acerto alta para compensar.');
+  if(w.length){msg.innerHTML=w.join('<br>');msg.style.display='block'}
+}
+['#rCap','#rRisk','#rEntry','#rStop','#rTarget','#rLev'].forEach(function(id){$(id).addEventListener('input',calc)});
+
+/* ---------- abertura ---------- */
+function introTape(){
+  var W=400,H=84,N=36,gap=1.6,cw=W/N,r=mulberry32(20250126);
+  var pr=[],v=100,i;
+  for(i=0;i<=N;i++){v+=(r()-.38)*2.9;pr.push(v)}
+  var bars=[],lo=1e9,hi=-1e9;
+  for(i=0;i<N;i++){
+    var o=pr[i],c=pr[i+1],t=Math.max(o,c)+r()*1.5,b=Math.min(o,c)-r()*1.5;
+    bars.push({o:o,c:c,h:t,l:b});if(b<lo)lo=b;if(t>hi)hi=t;
+  }
+  var pad=(hi-lo)*.12;lo-=pad;hi+=pad;
+  function Y(p){return 6+(hi-p)/(hi-lo)*(H-12)}
+  var s='<svg viewBox="0 0 '+W+' '+H+'" role="presentation">',ln=[];
+  bars.forEach(function(b,i){
+    var x=i*cw,xc=x+cw/2,up=b.c>=b.o,col=up?'var(--up)':'var(--down)',
+        yo=Y(b.o),yc=Y(b.c),y=Math.min(yo,yc),h=Math.max(1.4,Math.abs(yc-yo));
+    ln.push(xc.toFixed(1)+','+yc.toFixed(1));
+    s+='<g class="k" style="--d:'+(i*.032).toFixed(3)+'s">'+
+       '<line x1="'+xc.toFixed(1)+'" y1="'+Y(b.h).toFixed(1)+'" x2="'+xc.toFixed(1)+'" y2="'+Y(b.l).toFixed(1)+'" style="stroke:'+col+';stroke-width:1.1;opacity:.8"/>'+
+       '<rect x="'+(x+gap).toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+(cw-gap*2).toFixed(1)+'" height="'+h.toFixed(1)+'" rx="1" style="fill:'+col+';fill-opacity:'+(up?.9:.75)+';stroke:'+col+';stroke-width:.8"/></g>';
+  });
+  var last=bars[N-1],lx=(N-1)*cw+cw/2,ly=Y(last.c);
+  s+='<polyline class="ln" pathLength="1" points="'+ln.join(' ')+'" style="fill:none;stroke:var(--accent);stroke-width:1.4;stroke-linejoin:round;opacity:.55"/>';
+  s+='<circle class="pul" cx="'+lx.toFixed(1)+'" cy="'+ly.toFixed(1)+'" r="4" style="fill:var(--up)"/>';
+  s+='<g class="tag"><line x1="0" y1="'+ly.toFixed(1)+'" x2="'+W+'" y2="'+ly.toFixed(1)+'" style="stroke:var(--up);stroke-width:.8;stroke-dasharray:3 4;opacity:.6"/>'+
+     '<rect x="'+(W-62)+'" y="'+(ly-8).toFixed(1)+'" width="60" height="16" rx="4" style="fill:var(--up)"/>'+
+     '<text x="'+(W-32)+'" y="'+(ly+3.6).toFixed(1)+'" text-anchor="middle" style="font:500 9.5px var(--mono);fill:var(--bg)">+'+((pr[N]/pr[0]-1)*100).toFixed(1).replace('.',',')+'%</text></g>';
+  $('#tape').innerHTML=s+'</svg>';
+}
+function intro(){
+  introTape();
+  if(RM||sessionStorage.getItem('tfcIntro')==='1')return;
+  try{sessionStorage.setItem('tfcIntro','1')}catch(e){}
+  $$('.hero h1 span').forEach(function(el,i){el.style.setProperty('--d',(i*.075).toFixed(3)+'s')});
+  $$('.hero .path li').forEach(function(el,i){el.style.setProperty('--d',(1.05+i*.06).toFixed(3)+'s')});
+  document.body.classList.add('intro-on');
+}
+
+/* ---------- inicialização ---------- */
+buildInds();buildCandles();buildPats();buildSetups();initFigs();frInit();intro();
+D=gen(seed);build();renderAll();domRender();calc();
+})();
+</script>
+</body>
+</html>
